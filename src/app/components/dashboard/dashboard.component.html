@@ -1,0 +1,6 @@
+dashboard
+<div (click)="logout()">Logout</div>
+
+<div *ngIf="user$ | async as user">
+  <p>Welcome, {{ user.name }}</p>
+</div>

@@ -8,18 +8,18 @@ import {
 import { Injectable } from '@angular/core';
 import {
   Observable,
-  catchError,
-  switchMap,
   throwError,
   BehaviorSubject,
   filter,
   take,
-  of,
+  switchMap,
+  catchError,
 } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../store/auth/auth.actions';
 import { AuthState } from '../../store/auth/auth.models';
+import { selectUser } from '../../store/auth/auth.selectors';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -35,60 +35,89 @@ export class AuthInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    return next.handle(req).pipe(
+    const authReq = req.clone({ withCredentials: true });
+
+    console.log('➡️ Sending request to:', req.url);
+
+    return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
+        console.warn('⛔️ HTTP Error:', error.status, req.url);
+
         if (error.status === 401) {
+          // ❌ Bỏ qua login / logout route không cần refresh
+          const skipRefreshUrls = ['/auth/login', '/auth/logout'];
+          if (skipRefreshUrls.some((url) => req.url.includes(url))) {
+            console.warn('🚫 Skipping refresh for:', req.url);
+            return throwError(() => error);
+          }
+
+          console.warn('🔐 401 detected — Checking refresh flow...');
           return this.store.select('auth').pipe(
             take(1),
             switchMap((authState) => {
               const user = authState.user;
 
+              console.log('👤 User from store:', user);
+
               if (!user) {
-                // ❌ Chưa đăng nhập => Không refresh
+                console.warn('🚫 No user → Skip refresh');
                 return throwError(() => error);
               }
 
-              if (!this.isRefreshing) {
-                // ✅ Bắt đầu refresh
-                this.isRefreshing = true;
-                this.refreshTokenSubject.next(false);
-
-                return this.authService.refreshToken().pipe(
-                  switchMap((res) => {
-                    this.isRefreshing = false;
-
-                    if (res.success) {
-                      this.store.dispatch(
-                        AuthActions.refreshTokenSuccess({ user: res.data })
-                      );
-                      this.refreshTokenSubject.next(true);
-                      return next.handle(req); // ✅ retry request
-                    } else {
-                      this.store.dispatch(AuthActions.refreshTokenFailure());
-                      return throwError(() => error);
-                    }
-                  }),
-                  catchError((err) => {
-                    this.isRefreshing = false;
-                    this.store.dispatch(AuthActions.refreshTokenFailure());
-                    return throwError(() => err);
-                  })
-                );
-              } else {
-                // ⏳ Nếu đang refresh, đợi refreshTokenSubject xong rồi retry
-                return this.refreshTokenSubject.pipe(
-                  filter((ready) => ready === true),
-                  take(1),
-                  switchMap(() => next.handle(req))
-                );
-              }
+              return this.handle401Error(authReq, next);
             })
           );
         }
 
-        // Các lỗi khác
         return throwError(() => error);
       })
     );
+  }
+
+  private handle401Error(
+    request: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
+    if (!this.isRefreshing) {
+      console.log('🔄 Start refresh token');
+      this.isRefreshing = true;
+      this.refreshTokenSubject.next(false);
+
+      return this.authService.refreshToken().pipe(
+        switchMap((res) => {
+          this.isRefreshing = false;
+
+          if (res.success) {
+            console.log('✅ Refresh success → Update store & retry request');
+            this.store.dispatch(
+              AuthActions.refreshTokenSuccess({ user: res.data })
+            );
+            this.refreshTokenSubject.next(true);
+
+            return next.handle(request);
+          } else {
+            console.warn('❌ Refresh failed → Dispatch logout');
+            this.store.dispatch(AuthActions.refreshTokenFailure());
+            return throwError(() => new Error('Refresh failed'));
+          }
+        }),
+        catchError((err) => {
+          this.isRefreshing = false;
+          console.error('❌ Refresh error:', err.message);
+          this.store.dispatch(AuthActions.refreshTokenFailure());
+          return throwError(() => err);
+        })
+      );
+    } else {
+      console.log('⏳ Waiting for ongoing refresh to finish...');
+      return this.refreshTokenSubject.pipe(
+        filter((ready) => ready === true),
+        take(1),
+        switchMap(() => {
+          console.log('🔁 Retry after refresh done:', request.url);
+          return next.handle(request);
+        })
+      );
+    }
   }
 }

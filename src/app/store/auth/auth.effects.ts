@@ -34,16 +34,22 @@ export class AuthEffects {
               }
             }),
             catchError((error) => {
-              const message =
-                error.error?.message ||
-                (typeof error.error === 'string'
-                  ? error.error
-                  : error.message) ||
-                'Unknown error';
+              let message: string;
+
+              if (error.status === 0) {
+                // 🛑 Server không phản hồi (không bật / mất mạng / CORS)
+                message =
+                  'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại.';
+              } else {
+                message =
+                  typeof error.error === 'string'
+                    ? error.error
+                    : error.error?.message || error.message || 'Unknown error';
+              }
               return of(
                 AuthActions.loginFailure({
                   error: {
-                    message: message ? 'SERVER KHÔNG HOẠT ĐỘNG !!!' : '',
+                    message: message,
                     source: 'manual',
                   },
                 })
@@ -68,12 +74,18 @@ export class AuthEffects {
                   })
             ),
             catchError((error) => {
-              const message =
-                error.error?.message ||
-                (typeof error.error === 'string'
-                  ? error.error
-                  : error.message) ||
-                'Unknown error';
+              let message: string;
+
+              if (error.status === 0) {
+                // 🛑 Server không phản hồi (không bật / mất mạng / CORS)
+                message =
+                  'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại.';
+              } else {
+                message =
+                  typeof error.error === 'string'
+                    ? error.error
+                    : error.error?.message || error.message || 'Unknown error';
+              }
               return of(
                 AuthActions.loginFailure({
                   error: {
@@ -99,12 +111,18 @@ export class AuthEffects {
               return AuthActions.logoutSuccess();
             }),
             catchError((error) => {
-              const message =
-                error.error?.message ||
-                (typeof error.error === 'string'
-                  ? error.error
-                  : error.message) ||
-                'Unknown error';
+              let message: string;
+
+              if (error.status === 0) {
+                // 🛑 Server không phản hồi (không bật / mất mạng / CORS)
+                message =
+                  'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại.';
+              } else {
+                message =
+                  typeof error.error === 'string'
+                    ? error.error
+                    : error.error?.message || error.message || 'Unknown error';
+              }
               return of(
                 AuthActions.loginFailure({
                   error: {

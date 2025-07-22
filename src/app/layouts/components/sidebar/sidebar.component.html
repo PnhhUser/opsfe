@@ -1,0 +1,71 @@
+<!-- NAVBAR -->
+<nav
+  class="h-full bg-[#16162a] shadow flex flex-col justify-between py-6 px-4 relative transition-all duration-300 text-white"
+>
+  <!-- Toggle Button -->
+  <div class="absolute -right-2 top-1/2 -translate-y-1/2 z-20 hidden md:block">
+    <button
+      (click)="toggleNav()"
+      class="w-10 h-10 bg-white text-[#16162a] rounded-full flex items-center justify-center"
+      type="button"
+    >
+      <lucide-icon
+        [img]="isNavOpen ? ChevronLeftIcon : ChevronRightIcon"
+        class="w-5 h-5 text-[#16162a]"
+        strokeWidth="3"
+      ></lucide-icon>
+    </button>
+  </div>
+
+  <!-- Logo + Menu -->
+  <div class="flex flex-col">
+    <!-- Logo -->
+    <div class="mb-8 flex items-center justify-center h-20" *ngIf="isNavOpen">
+      <img
+        *ngIf="isNavOpen"
+        [ngSrc]="logoUrl"
+        width="120"
+        height="80"
+        priority
+        alt="Logo"
+        class="object-contain max-h-full"
+      />
+    </div>
+
+    <!-- Menu List -->
+    <ul class="flex flex-col gap-4 flex-1">
+      <li *ngFor="let item of navItems">
+        <a
+          [routerLink]="item.link"
+          routerLinkActive="bg-white text-[#16162a] font-semibold shadow-inner"
+          [routerLinkActiveOptions]="{ exact: false }"
+          class="flex gap-2 items-center justify-start p-2 rounded-lg transition-all duration-300 ease-in-out hover:bg-white/80 hover:text-[#16162a]"
+          [ngClass]="{
+            'items-start': navOpen(),
+            'items-center justify-center': !navOpen()
+          }"
+        >
+          <lucide-icon [img]="item.icon" class="my-icon"></lucide-icon>
+          <span *ngIf="navOpen()" class="hidden md:block">{{
+            item.label
+          }}</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Logout -->
+  <div>
+    <button
+      class="w-full flex items-center justify-center gap-2 bg-white text-[#16162a] py-2 rounded-lg transition"
+      (click)="logout()"
+    >
+      <lucide-icon
+        [img]="LogoutIcon"
+        [size]="navOpen() ? '24' : '16'"
+        class="my-icon"
+      ></lucide-icon>
+      <span *ngIf="isNavOpen" class="hidden md:block">Logout</span>
+    </button>
+  </div>
+</nav>

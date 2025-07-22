@@ -24,7 +24,7 @@
       <img
         *ngIf="isNavOpen"
         [ngSrc]="logoUrl"
-        width="120"
+        width="80"
         height="80"
         priority
         alt="Logo"
@@ -45,7 +45,10 @@
             'items-center justify-center': !navOpen()
           }"
         >
-          <lucide-icon [img]="item.icon" class="my-icon"></lucide-icon>
+          <lucide-icon
+            [img]="item.icon"
+            class="my-icon md:w-6 md:h-6 shrink-0 w-5 h-5"
+          ></lucide-icon>
           <span *ngIf="navOpen()" class="hidden md:block">{{
             item.label
           }}</span>
@@ -62,8 +65,7 @@
     >
       <lucide-icon
         [img]="LogoutIcon"
-        [size]="navOpen() ? '24' : '16'"
-        class="my-icon"
+        class="my-icon md:w-6 md:h-6 shrink-0 w-5 h-5"
       ></lucide-icon>
       <span *ngIf="isNavOpen" class="hidden md:block">Logout</span>
     </button>

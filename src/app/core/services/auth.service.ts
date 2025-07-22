@@ -12,7 +12,7 @@ import * as AuthActions from '../../store/auth/auth.actions';
 export class AuthService {
   private apiUrl = 'http://localhost:3000/api/auth';
 
-  constructor(private http: HttpClient, private store: Store) {}
+  constructor(private http: HttpClient) {}
 
   login(loginform: ILoginForm): Observable<IResponseCustom<IUser>> {
     return this.http.post<IResponseCustom<IUser>>(

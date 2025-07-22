@@ -18,21 +18,74 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      // dashboard
       {
         path: 'dashboard',
         component: DashboardComponent,
         data: { breadcrumb: 'Dashboard' },
       },
+      // analytics
       {
         path: 'analytics',
         component: AnalyticsComponent,
         data: { breadcrumb: 'Analytics' },
       },
+      // module
       {
         path: 'module',
         component: ModuleComponent,
-        data: { breadcrumb: 'Module' },
+        data: { breadcrumb: 'Business Modules' },
+        children: [
+          // human-resources
+          {
+            path: 'human-resources',
+            loadComponent: () =>
+              import(
+                './components/human-resources/human-resources.component'
+              ).then((m) => m.HumanResourcesComponent),
+            data: { breadcrumb: 'HR Management' },
+            children: [
+              // accounts
+              {
+                path: 'accounts',
+                loadComponent: () =>
+                  import('./components/accounts/accounts.component').then(
+                    (m) => m.AccountComponent
+                  ),
+                data: { breadcrumb: 'Accounts' },
+              },
+              // employees
+              {
+                path: 'employees',
+                loadComponent: () =>
+                  import('./components/employees/employee.component').then(
+                    (m) => m.EmployeeComponent
+                  ),
+                data: { breadcrumb: 'Employees' },
+              },
+              // positions
+              {
+                path: 'positions',
+                loadComponent: () =>
+                  import('./components/position/position.component').then(
+                    (m) => m.PositionComponent
+                  ),
+                data: { breadcrumb: 'Positions' },
+              },
+              // departments
+              {
+                path: 'departments',
+                loadComponent: () =>
+                  import('./components/department/department.component').then(
+                    (m) => m.DepartmentComponent
+                  ),
+                data: { breadcrumb: 'Departments' },
+              },
+            ],
+          },
+        ],
       },
+      // setting
       {
         path: 'setting',
         component: SettingComponent,

@@ -21,6 +21,8 @@
     "@ngrx/effects": "^18.1.1",
     "@ngrx/store": "^18.1.1",
     "@ngrx/store-devtools": "^18.1.1",
+    "ag-grid-angular": "^34.0.2",
+    "ag-grid-community": "^34.0.2",
     "lucide-angular": "^0.525.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

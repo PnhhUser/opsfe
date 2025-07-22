@@ -1,0 +1,8 @@
+<button
+  *ngIf="isParentRoute()"
+  (click)="goBack()"
+  class="flex items-center text-sm text-blue-600 hover:underline mb-4"
+>
+  ← {{ parentLabel }}
+</button>
+position

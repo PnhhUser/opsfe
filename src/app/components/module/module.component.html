@@ -1,1 +1,7 @@
-module
+<app-panel *ngIf="isParentRoute()">
+  <div *ngFor="let route of routes">
+    <app-button-link [url]="route.url" [name]="route.name"></app-button-link>
+  </div>
+</app-panel>
+
+<router-outlet></router-outlet>

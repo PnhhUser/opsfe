@@ -17,13 +17,19 @@
 
   <!-- MAIN CONTENT -->
   <div
-    class="{{ navOpen() ? 'w-5/6' : 'w-full' }} transition-all duration-300"
+    class="{{
+      navOpen() ? 'w-5/6' : 'w-full'
+    }} transition-all duration-300 h-full bg-gray-50"
     [ngClass]="{
       'w-full': isMobile || !navOpen(),
       'w-5/6': !isMobile && navOpen()
     }"
   >
-    <app-topbar></app-topbar>
-    <router-outlet />
+    <div [ngClass]="{ hidden: isMobile, block: !isMobile }">
+      <app-topbar></app-topbar>
+    </div>
+    <div class="p-5">
+      <router-outlet />
+    </div>
   </div>
 </div>

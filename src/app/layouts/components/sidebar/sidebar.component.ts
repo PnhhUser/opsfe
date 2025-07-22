@@ -59,7 +59,7 @@ export class SidebarComponent {
       icon: this.DashboardIcon,
     },
     {
-      label: 'Modules',
+      label: 'Business Modules',
       link: '/module',
       icon: this.PuzzleIcon,
     },

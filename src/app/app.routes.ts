@@ -6,6 +6,7 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { AnalyticsComponent } from './components/analytics/analytics.component';
 import { ModuleComponent } from './components/module/module.component';
 import { SettingComponent } from './components/setting/setting.component';
+import { accountRoute } from './components/accounts/account.route';
 
 export const routes: Routes = [
   {
@@ -46,14 +47,7 @@ export const routes: Routes = [
             data: { breadcrumb: 'HR Management' },
             children: [
               // accounts
-              {
-                path: 'accounts',
-                loadComponent: () =>
-                  import('./components/accounts/accounts.component').then(
-                    (m) => m.AccountComponent
-                  ),
-                data: { breadcrumb: 'Accounts' },
-              },
+              accountRoute,
               // employees
               {
                 path: 'employees',

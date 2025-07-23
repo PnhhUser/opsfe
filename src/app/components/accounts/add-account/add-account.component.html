@@ -1,0 +1,14 @@
+<button
+  (click)="goBack()"
+  class="flex items-center text-sm text-blue-600 hover:underline mb-4"
+>
+  ← {{ parentLabel }}
+</button>
+
+<app-panel [column]="1">
+  <app-dynamic-form
+    [fields]="accountField"
+    (formSubmit)="submitUserForm($event)"
+    [messageError]="messageError"
+  ></app-dynamic-form>
+</app-panel>

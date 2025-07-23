@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { IUser } from '../../core/models/user.model';
+import { IUser } from '../../core/interfaces/user.interface';
 import { selectUser } from '../../store/auth/auth.selectors';
 import * as AuthActions from '../../store/auth/auth.actions';
 import { Router } from '@angular/router';

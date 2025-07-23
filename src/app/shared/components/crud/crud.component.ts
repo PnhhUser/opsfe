@@ -16,12 +16,14 @@ interface IRoute {
 })
 export class CRUDComponent {
   @Input() selectedItem: { id: number } | null = null;
+  @Input() name!: string;
+  @Input() prefixRouter!: string;
 
   get routes(): IRoute[] {
     const buttons: IRoute[] = [
       {
         name: 'Add',
-        url: '/add',
+        url: `/${this.prefixRouter}/add-${this.name}`,
         styleCss: 'bg-green-500 text-white hover:bg-green-600 w-32',
       },
     ];
@@ -30,12 +32,12 @@ export class CRUDComponent {
       buttons.push(
         {
           name: 'Update',
-          url: `/update/${this.selectedItem.id}`,
+          url: `/${this.prefixRouter}/update-${this.name}/${this.selectedItem.id}`,
           styleCss: 'bg-blue-500 text-white hover:bg-blue-600 w-32',
         },
         {
           name: 'Delete',
-          url: `/delete/${this.selectedItem.id}`,
+          url: `/${this.prefixRouter}/delete-${this.name}/${this.selectedItem.id}`,
           styleCss: 'bg-red-500 text-white hover:bg-red-600 w-32',
         }
       );

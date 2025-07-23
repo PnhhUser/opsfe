@@ -15,7 +15,7 @@ import {
   selectLoading,
   selectUser,
 } from '../../store/auth/auth.selectors';
-import { IError } from '../../core/models/error.model';
+import { IError } from '../../core/interfaces/error.interface';
 import { Router } from '@angular/router';
 
 @Component({

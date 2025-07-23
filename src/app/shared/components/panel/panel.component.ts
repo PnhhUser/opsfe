@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-panel',
@@ -8,4 +8,6 @@ import { Component } from '@angular/core';
   templateUrl: './panel.component.html',
   styleUrl: './panel.component.css',
 })
-export class PanelComponent {}
+export class PanelComponent {
+  @Input() column: number = 2;
+}

@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import * as AuthActions from './store/auth/auth.actions';
 import { selectLoading, selectUser } from './store/auth/auth.selectors';
 import { combineLatest, filter, Observable, take } from 'rxjs';
-import { IUser } from './core/models/user.model';
+import { IUser } from './core/interfaces/user.interface';
 
 @Component({
   selector: 'app-root',

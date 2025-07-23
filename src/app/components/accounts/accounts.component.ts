@@ -1,7 +1,7 @@
 // Import các module cần thiết từ Angular, Router, AG Grid và các service/model nội bộ
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { AgGridModule } from 'ag-grid-angular';
 import {
   ColDef,
@@ -15,33 +15,24 @@ import {
 } from 'ag-grid-community';
 import { CRUDComponent } from '../../shared/components/crud/crud.component';
 import { AccountService } from '../../core/services/account.service';
-import { IAccount } from '../../core/models/account.model';
+import { IAccount } from '../../core/interfaces/account.interface';
 import { RoleEnum } from '../../core/enum/role.enum';
+import { IAccountTable } from './interfaces/account-table.interface';
 
 // Đăng ký module AG Grid community
 ModuleRegistry.registerModules([AllCommunityModule]);
-
-// Định nghĩa interface để dùng cho hiển thị dữ liệu trên bảng
-interface IAccountTable {
-  accountId: number;
-  username: string;
-  role: string;
-  online: string | null;
-  Active: boolean;
-  createDate: string;
-  UpdateDate: string;
-}
 
 @Component({
   selector: 'app-account',
   standalone: true,
   templateUrl: './accounts.component.html',
-  imports: [CommonModule, AgGridModule, CRUDComponent],
+  imports: [CommonModule, AgGridModule, CRUDComponent, RouterOutlet],
 })
 export class AccountComponent {
   parentLabel = 'Back';
   selectAccountId: { id: number } | null = null;
   gridApi!: GridApi;
+  prefixRouter: string;
 
   // Định nghĩa các cột hiển thị trong AG Grid
   columnDefs: ColDef<IAccountTable>[] = [
@@ -96,12 +87,12 @@ export class AccountComponent {
     // Lấy breadcrumb từ route cha để hiển thị label quay về
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
     this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : 'Back';
+    this.prefixRouter = this.router.url;
   }
 
   // Gọi khi component được khởi tạo
   ngOnInit() {
     this.loadData();
-
     // Bỏ chọn khi click ra ngoài grid
     document.addEventListener('click', this.onDocumentClick);
   }

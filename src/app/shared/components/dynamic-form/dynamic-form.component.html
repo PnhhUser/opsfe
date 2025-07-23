@@ -1,0 +1,72 @@
+<div *ngIf="messageError" class="text-red-500 text-sm mb-4">
+  {{ messageError }}
+</div>
+<form
+  [formGroup]="form"
+  (ngSubmit)="onSubmit()"
+  class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4"
+>
+  <div
+    *ngFor="let field of fields"
+    class="space-y-1 w-full"
+    [class.col-span-2]="field.type === 'checkbox'"
+  >
+    <!-- Label -->
+    <label
+      *ngIf="field.type !== 'checkbox'"
+      [for]="field.name"
+      class="block text-sm font-medium text-gray-700"
+    >
+      {{ field.label }}
+    </label>
+
+    <!-- Text, Email, Password, Date -->
+    <input
+      *ngIf="['text', 'email', 'password', 'date'].includes(field.type)"
+      [type]="field.type"
+      [id]="field.name"
+      [formControlName]="field.name"
+      class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-indigo-300 focus:border-indigo-500"
+    />
+
+    <!-- Select -->
+    <select
+      *ngIf="field.type === 'select'"
+      [id]="field.name"
+      [formControlName]="field.name"
+      class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-indigo-300 focus:border-indigo-500"
+    >
+      <option *ngFor="let opt of field.options" [value]="opt.value">
+        {{ opt.label }}
+      </option>
+    </select>
+
+    <!-- Checkbox -->
+    <div *ngIf="field.type === 'checkbox'" class="flex items-center space-x-2">
+      <input
+        type="checkbox"
+        [id]="field.name"
+        [formControlName]="field.name"
+        class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+      />
+      <label [for]="field.name" class="text-sm text-gray-700">
+        {{ field.label }}
+      </label>
+    </div>
+
+    <!-- Validation -->
+    <div *ngIf="form.get(field.name)?.invalid && form.get(field.name)?.touched">
+      <small class="text-red-500">Trường {{ field.label }} là bắt buộc.</small>
+    </div>
+  </div>
+
+  <!-- Submit button -->
+  <div class="col-span-2">
+    <button
+      type="submit"
+      class="mt-4 w-full bg-gray-500 text-white px-4 py-2 rounded-md transition"
+    >
+      Submit
+    </button>
+  </div>
+</form>

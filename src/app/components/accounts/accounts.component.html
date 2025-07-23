@@ -6,9 +6,14 @@
   ← {{ parentLabel }}
 </button>
 
-<app-crud [selectedItem]="selectAccountId" />
+<app-crud
+  *ngIf="isParentRoute()"
+  [selectedItem]="selectAccountId"
+  name="account"
+  [prefixRouter]="prefixRouter"
+/>
 
-<div class="w-full h-[520px]">
+<div class="w-full h-[520px]" *ngIf="isParentRoute()">
   <ag-grid-angular
     class="ag-theme-alpine w-full h-full"
     [gridOptions]="gridOptions"
@@ -18,3 +23,5 @@
     (rowClicked)="onRowClicked($event)"
   ></ag-grid-angular>
 </div>
+
+<router-outlet />

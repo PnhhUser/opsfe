@@ -1,5 +1,5 @@
-import { IError } from '../../core/models/error.model';
-import { IUser } from '../../core/models/user.model';
+import { IError } from '../../core/interfaces/error.interface';
+import { IUser } from '../../core/interfaces/user.interface';
 import { ILoginForm } from './../../components/login/model/login.model';
 import { createAction, props } from '@ngrx/store';
 

@@ -12,11 +12,3 @@
     [messageError]="messageError"
   ></app-dynamic-form>
 </app-panel>
-
-<app-confirm-dialog
-  *ngIf="showConfirm"
-  [message]="'Bạn có chắc muốn thêm ' + pendingData?.username + ' không?'"
-  [loading]="isLoading"
-  (confirm)="confirmAdd()"
-  (cancel)="cancelAdd()"
-></app-confirm-dialog>

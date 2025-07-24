@@ -13,7 +13,7 @@
   [prefixRouter]="prefixRouter"
 />
 
-<div class="w-full h-[520px]" *ngIf="isParentRoute()">
+<div *ngIf="isParentRoute()">
   <ag-grid-angular
     class="ag-theme-alpine w-full h-full"
     [gridOptions]="gridOptions"

@@ -2,23 +2,32 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { DynamicFormComponent } from '../../../shared/components/dynamic-form/dynamic-form.component';
 import { IFormField } from '../../../core/interfaces/form-field.interface';
-import { IAccountTable } from '../interfaces/account-table.interface';
 import { PanelComponent } from '../../../shared/components/panel/panel.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AddAccountModel, roleEnum } from '../models/add-account.model';
+import { AccountModel, roleEnum } from '../models/account.model';
 import { AccountService } from '../../../core/services/account.service';
+import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog/confirm-dialog.component';
 
 @Component({
   standalone: true,
-  selector: 'app-account-add',
+  selector: 'app-add-account',
   templateUrl: './add-account.component.html',
-  imports: [CommonModule, DynamicFormComponent, PanelComponent],
+  imports: [
+    CommonModule,
+    DynamicFormComponent,
+    PanelComponent,
+    ConfirmDialogComponent,
+  ],
 })
 export class AddAccountComponent {
   parentLabel = 'Back';
   messageError: string = '';
 
-  accountField: IFormField<keyof AddAccountModel>[] = [
+  showConfirm = false;
+  isLoading = false;
+  pendingData: AccountModel | null = null;
+
+  accountField: IFormField<keyof AccountModel>[] = [
     { name: 'username', label: 'Username', type: 'text', required: true },
     { name: 'password', label: 'Password', type: 'password', required: true },
 
@@ -56,16 +65,39 @@ export class AddAccountComponent {
     this.router.navigate(['../'], { relativeTo: this.activatedRoute });
   }
 
-  submitUserForm(data: AddAccountModel) {
-    console.log(data);
+  submitUserForm(data: AccountModel) {
+    this.pendingData = data;
+    this.showConfirm = true;
+  }
 
-    this.accountService.addAccount(data).subscribe({
+  confirmAdd() {
+    if (!this.pendingData) return;
+    this.isLoading = true;
+
+    // Thêm account
+    this.accountService.addAccount(this.pendingData).subscribe({
       next: () => {
-        console.log('ok');
+        // delay 2s
+        setTimeout(() => {
+          this.isLoading = false;
+          this.showConfirm = false;
+          this.pendingData = null;
+          this.router.navigate(['../'], {
+            relativeTo: this.activatedRoute,
+          });
+        }, 2000);
       },
       error: (e) => {
         this.messageError = e.error.message;
+        this.isLoading = false;
+        this.showConfirm = false;
       },
     });
+  }
+
+  cancelAdd() {
+    this.showConfirm = false;
+    this.isLoading = false;
+    this.pendingData = null;
   }
 }

@@ -1,7 +1,12 @@
 // Import các module cần thiết từ Angular, Router, AG Grid và các service/model nội bộ
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  Router,
+  RouterOutlet,
+} from '@angular/router';
 import { AgGridModule } from 'ag-grid-angular';
 import {
   ColDef,
@@ -18,6 +23,7 @@ import { AccountService } from '../../core/services/account.service';
 import { IAccount } from '../../core/interfaces/account.interface';
 import { RoleEnum } from '../../core/enum/role.enum';
 import { IAccountTable } from './interfaces/account-table.interface';
+import { filter } from 'rxjs';
 
 // Đăng ký module AG Grid community
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -37,28 +43,63 @@ export class AccountComponent {
   // Định nghĩa các cột hiển thị trong AG Grid
   columnDefs: ColDef<IAccountTable>[] = [
     { field: 'username', sortable: true, filter: true },
-    { field: 'role', sortable: true },
-    // Hiển thị Active/InActive có màu
     {
-      field: 'Active',
+      field: 'role',
       sortable: true,
       cellRenderer: (params: ICellRendererParams) => {
-        const isActive = params.value;
-        const color = isActive ? 'green' : 'red';
-        const label = isActive ? 'Active' : 'Inactive';
-        return `<span style="color: ${color}; font-weight: bold;">${label}</span>`;
+        const roleId = Number.parseInt(params.value);
+        const isAdmin = roleId === RoleEnum.admin;
+
+        const label = isAdmin ? 'Admin' : 'User';
+        const badgeClass = isAdmin
+          ? 'bg-red-100 text-red-700'
+          : 'bg-blue-100 text-blue-700';
+
+        return `
+      <span class="inline-flex items-center justify-center h-6 min-w-[60px] px-3 text-xs font-semibold rounded-full ${badgeClass}">
+        ${label}
+      </span>
+    `;
       },
     },
 
-    // Hiển thị Online/Offline có màu
+    // Active / Inactive badge
     {
-      field: 'online',
+      field: 'Active',
+      headerName: 'Status',
       sortable: true,
       cellRenderer: (params: ICellRendererParams) => {
-        const online = params.value;
-        const color = online ? 'green' : 'red';
-        const label = online ? 'Yes' : 'No';
-        return `<span style="color: ${color}; font-weight: bold;">${label}</span>`;
+        const isActive = params.value;
+        const label = isActive ? 'Active' : 'Inactive';
+        const badgeClass = isActive
+          ? 'bg-green-100 text-green-700'
+          : 'bg-red-100 text-red-700';
+
+        return `
+      <span class="inline-flex items-center justify-center h-6 min-w-[70px] px-3 text-xs font-semibold rounded-full ${badgeClass}">
+        ${label}
+      </span>
+    `;
+      },
+    },
+
+    // Online / Offline badge
+    {
+      field: 'online',
+      headerName: 'Online',
+      sortable: true,
+      cellRenderer: (params: ICellRendererParams) => {
+        const isOnline = params.value;
+        const label = isOnline ? 'Online' : 'Offline';
+        const badgeClass = isOnline
+          ? 'bg-blue-100 text-blue-700'
+          : 'bg-gray-200 text-gray-600';
+
+        return `
+      <span class="inline-flex items-center justify-center h-6 min-w-[70px] px-3 text-xs font-semibold rounded-full ${badgeClass}">
+        ${label}
+      </span>
+    `;
       },
     },
 
@@ -76,6 +117,9 @@ export class AccountComponent {
     pagination: true,
     paginationPageSize: 10,
     paginationPageSizeSelector: [10, 20, 50, 100],
+    rowHeight: 44,
+    headerHeight: 44,
+    domLayout: 'autoHeight',
   };
 
   // Inject các service cần thiết
@@ -93,6 +137,16 @@ export class AccountComponent {
   // Gọi khi component được khởi tạo
   ngOnInit() {
     this.loadData();
+
+    // Lắng nghe điều hướng quay về chính route này
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        if (this.isParentRoute()) {
+          this.loadData(); // Reload dữ liệu
+        }
+      });
+
     // Bỏ chọn khi click ra ngoài grid
     document.addEventListener('click', this.onDocumentClick);
   }
@@ -121,11 +175,17 @@ export class AccountComponent {
 
   // Gọi API để lấy dữ liệu tài khoản và gán vào rowData
   loadData() {
+    const admin =
+      'inline-block px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full';
+
+    const user =
+      'inline-block px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full';
+
     this.accountService.getAccounts().subscribe((res) => {
       const data = res.data;
       this.rowData = data.map((account: IAccount) => ({
         accountId: account.accountId,
-        role: account.roleId === RoleEnum.admin ? 'admin' : 'user',
+        role: account.roleId.toString(),
         username: account.username,
         Active: account.isAction,
         createDate: this.toLocaleDateString(account.createdAt),

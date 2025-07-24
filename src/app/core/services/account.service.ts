@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { IResponseCustom } from '../interfaces/response.interface';
 import { IAccount } from '../interfaces/account.interface';
 import { apiUrl } from '../const/api.const';
-import { AddAccountModel } from '../../components/accounts/models/add-account.model';
+import { AccountModel } from '../../components/accounts/models/account.model';
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
@@ -16,8 +16,8 @@ export class AccountService {
     });
   }
 
-  addAccount(model: AddAccountModel): Observable<AddAccountModel> {
-    return this.http.post<AddAccountModel>(
+  addAccount(model: AccountModel): Observable<AccountModel> {
+    return this.http.post<AccountModel>(
       `${apiUrl}/accounts`,
       {
         username: model.username,
@@ -28,5 +28,11 @@ export class AccountService {
         withCredentials: true,
       }
     );
+  }
+
+  getAccount(accountId: number): Observable<{ id: number }> {
+    return this.http.get<{ id: number }>(`${apiUrl}/accounts/:id`, {
+      withCredentials: true,
+    });
   }
 }

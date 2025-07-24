@@ -3,7 +3,7 @@ export enum roleEnum {
   User = 2,
 }
 
-export class AddAccountModel {
+export class AccountModel {
   username: string | null = null;
   password: string | null = null;
   active!: boolean;

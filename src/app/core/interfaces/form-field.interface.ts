@@ -1,4 +1,4 @@
-import { roleEnum } from '../../components/accounts/models/add-account.model';
+import { roleEnum } from '../../components/accounts/models/account.model';
 
 export interface IFormField<K extends string = string> {
   name: K;

@@ -24,21 +24,24 @@ export class CRUDComponent {
       {
         name: 'Add',
         url: `/${this.prefixRouter}/add-${this.name}`,
-        styleCss: 'bg-green-500 text-white hover:bg-green-600 w-32',
+        styleCss:
+          'px-4 py-2 rounded-md border border-green-500 text-green-600 hover:bg-green-100 font-semibold shadow',
       },
     ];
 
     if (this.selectedItem) {
       buttons.push(
         {
-          name: 'Update',
-          url: `/${this.prefixRouter}/update-${this.name}/${this.selectedItem.id}`,
-          styleCss: 'bg-blue-500 text-white hover:bg-blue-600 w-32',
+          name: 'Edit',
+          url: `/${this.prefixRouter}/edit-${this.name}/${this.selectedItem.id}`,
+          styleCss:
+            'px-4 py-2 rounded-md border border-blue-500 text-blue-600 hover:bg-blue-100 font-semibold shadow',
         },
         {
           name: 'Delete',
           url: `/${this.prefixRouter}/delete-${this.name}/${this.selectedItem.id}`,
-          styleCss: 'bg-red-500 text-white hover:bg-red-600 w-32',
+          styleCss:
+            'px-4 py-2 rounded-md border border-red-500 text-red-600 hover:bg-red-100 font-semibold shadow',
         }
       );
     }

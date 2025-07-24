@@ -11,7 +11,7 @@ import { TopbarComponent } from './components/topbar/topbar.component';
   templateUrl: './layout.component.html',
 })
 export class LayoutComponent {
-  navIsOpen = true;
+  navIsOpen = false;
   isMobile = false;
 
   ngOnInit() {

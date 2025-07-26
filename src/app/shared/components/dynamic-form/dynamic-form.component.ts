@@ -6,7 +6,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { IFormField } from '../../../core/interfaces/form-field.interface';
+import { IField } from '../../../core/interfaces/field.interface';
 
 @Component({
   selector: 'app-dynamic-form',
@@ -17,7 +17,7 @@ import { IFormField } from '../../../core/interfaces/form-field.interface';
 export class DynamicFormComponent<T extends Record<string, any> = any>
   implements OnInit
 {
-  @Input() fields: IFormField<Extract<keyof T, string>>[] = [];
+  @Input() fields: IField<Extract<keyof T, string>>[] = [];
 
   @Input() messageError: string = '';
 

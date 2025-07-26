@@ -19,11 +19,13 @@ import {
   GridApi,
 } from 'ag-grid-community';
 import { CRUDComponent } from '../../shared/components/crud/crud.component';
-import { AccountService } from '../../core/services/account.service';
-import { IAccount } from '../../core/interfaces/account.interface';
+import { ILoadAccount } from '../../core/interfaces/account.interface';
 import { RoleEnum } from '../../core/enum/role.enum';
 import { IAccountTable } from './interfaces/account-table.interface';
 import { filter } from 'rxjs';
+import { Store } from '@ngrx/store';
+import * as AccountActions from '../../store/accounts/account.actions';
+import { selectAccounts } from '../../store/accounts/account.selectors';
 
 // Đăng ký module AG Grid community
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -39,6 +41,8 @@ export class AccountComponent {
   selectAccountId: { id: number } | null = null;
   gridApi!: GridApi;
   prefixRouter: string;
+
+  accounts$;
 
   // Định nghĩa các cột hiển thị trong AG Grid
   columnDefs: ColDef<IAccountTable>[] = [
@@ -126,12 +130,14 @@ export class AccountComponent {
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private accountService: AccountService
+    private store: Store
   ) {
     // Lấy breadcrumb từ route cha để hiển thị label quay về
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
     this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : 'Back';
     this.prefixRouter = this.router.url;
+
+    this.accounts$ = this.store.select(selectAccounts);
   }
 
   // Gọi khi component được khởi tạo
@@ -175,15 +181,9 @@ export class AccountComponent {
 
   // Gọi API để lấy dữ liệu tài khoản và gán vào rowData
   loadData() {
-    const admin =
-      'inline-block px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full';
-
-    const user =
-      'inline-block px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full';
-
-    this.accountService.getAccounts().subscribe((res) => {
-      const data = res.data;
-      this.rowData = data.map((account: IAccount) => ({
+    this.store.dispatch(AccountActions.loadAccount());
+    this.accounts$.subscribe((accounts: ILoadAccount[]) => {
+      this.rowData = accounts.map((account: ILoadAccount) => ({
         accountId: account.accountId,
         role: account.roleId.toString(),
         username: account.username,

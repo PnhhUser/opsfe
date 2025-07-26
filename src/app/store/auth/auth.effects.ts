@@ -37,7 +37,7 @@ export class AuthEffects {
               let message: string;
 
               if (error.status === 0) {
-                // 🛑 Server không phản hồi (không bật / mất mạng / CORS)
+                // Server không phản hồi (không bật / mất mạng / CORS)
                 message =
                   'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại.';
               } else {
@@ -60,7 +60,7 @@ export class AuthEffects {
       )
     );
 
-    // 🔄 CHECK AUTH (chỉ nên gọi khi biết chắc cookie còn)
+    // CHECK AUTH (chỉ nên gọi khi biết chắc cookie còn)
     this.checkAuth$ = createEffect(() =>
       this.actions$.pipe(
         ofType(AuthActions.checkAuth),
@@ -77,7 +77,7 @@ export class AuthEffects {
               let message: string;
 
               if (error.status === 0) {
-                // 🛑 Server không phản hồi (không bật / mất mạng / CORS)
+                // Server không phản hồi (không bật / mất mạng / CORS)
                 message =
                   'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại.';
               } else {
@@ -100,7 +100,7 @@ export class AuthEffects {
       )
     );
 
-    // 🚪 LOGOUT
+    // LOGOUT
     this.logout$ = createEffect(() =>
       this.actions$.pipe(
         ofType(AuthActions.logout),
@@ -114,7 +114,7 @@ export class AuthEffects {
               let message: string;
 
               if (error.status === 0) {
-                // 🛑 Server không phản hồi (không bật / mất mạng / CORS)
+                // Server không phản hồi (không bật / mất mạng / CORS)
                 message =
                   'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại.';
               } else {
@@ -136,7 +136,7 @@ export class AuthEffects {
       )
     );
 
-    // 🔁 REFRESH TOKEN
+    // REFRESH TOKEN
     this.refreshToken$ = createEffect(() =>
       this.actions$.pipe(
         ofType(AuthActions.refreshToken),

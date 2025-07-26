@@ -1,6 +1,5 @@
+import { ILoginForm, IUser } from '../../core/interfaces/auth.interface';
 import { IError } from '../../core/interfaces/error.interface';
-import { IUser } from '../../core/interfaces/user.interface';
-import { ILoginForm } from './../../components/login/model/login.model';
 import { createAction, props } from '@ngrx/store';
 
 // Login Actions
@@ -13,7 +12,7 @@ export const loginSuccess = createAction(
 
 export const loginFailure = createAction(
   '[Auth] Login Failure',
-  props<{ error: IError; source?: 'checkAuth' | 'manual' }>()
+  props<{ error: IError }>()
 );
 
 // Check Auth Actions

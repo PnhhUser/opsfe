@@ -1,10 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
 import * as AuthActions from './store/auth/auth.actions';
-import { selectLoading, selectUser } from './store/auth/auth.selectors';
-import { combineLatest, filter, Observable, take } from 'rxjs';
-import { IUser } from './core/interfaces/user.interface';
+import { selectUser } from './store/auth/auth.selectors';
+import { Observable, take } from 'rxjs';
+import { IUser } from './core/interfaces/auth.interface';
 
 @Component({
   selector: 'app-root',

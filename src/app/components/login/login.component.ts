@@ -8,7 +8,6 @@ import {
   ReactiveFormsModule,
   FormGroup,
 } from '@angular/forms';
-import { ILoginForm } from './model/login.model';
 import * as AuthActions from '../../store/auth/auth.actions';
 import {
   selectError,
@@ -17,6 +16,7 @@ import {
 } from '../../store/auth/auth.selectors';
 import { IError } from '../../core/interfaces/error.interface';
 import { Router } from '@angular/router';
+import { ILoginForm } from '../../core/interfaces/auth.interface';
 
 @Component({
   selector: 'app-login',

@@ -1,8 +1,8 @@
 import { createReducer, on } from '@ngrx/store';
-import { AuthState } from './auth.models';
 import * as AuthActions from './auth.actions';
+import { IAuthState } from '../../core/interfaces/auth.interface';
 
-export const initialState: AuthState = {
+const initialState: IAuthState = {
   user: null,
   loading: false,
   error: null,

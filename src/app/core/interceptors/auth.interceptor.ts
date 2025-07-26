@@ -18,7 +18,7 @@ import {
 import { AuthService } from '../services/auth.service';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../store/auth/auth.actions';
-import { AuthState } from '../../store/auth/auth.models';
+import { IAuthState } from '../interfaces/auth.interface';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -27,7 +27,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   constructor(
     private authService: AuthService,
-    private store: Store<{ auth: AuthState }>
+    private store: Store<{ auth: IAuthState }>
   ) {}
 
   intercept(

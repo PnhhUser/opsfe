@@ -17,14 +17,16 @@ import {
   withInterceptorsFromDi,
 } from '@angular/common/http';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { accountReducer } from './store/accounts/account.reducer';
+import { AccountEffect } from './store/accounts/account.effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(withInterceptorsFromDi()),
     provideRouter(routes),
-    provideStore({ auth: authReducer }),
-    provideEffects([AuthEffects]),
+    provideStore({ auth: authReducer, account: accountReducer }),
+    provideEffects([AuthEffects, AccountEffect]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
     {
       provide: HTTP_INTERCEPTORS,

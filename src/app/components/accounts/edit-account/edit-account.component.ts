@@ -4,8 +4,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AccountService } from '../../../core/services/account.service';
 import { PanelComponent } from '../../../shared/components/panel/panel.component';
 import { DynamicFormComponent } from '../../../shared/components/dynamic-form/dynamic-form.component';
-import { IFormField } from '../../../core/interfaces/form-field.interface';
-import { AccountModel, roleEnum } from '../models/account.model';
+import { IField } from '../../../core/interfaces/field.interface';
+import { RoleEnum } from '../../../core/enum/role.enum';
+import { IAccount } from '../../../core/interfaces/account.interface';
 
 @Component({
   selector: 'app-edit-account',
@@ -20,7 +21,7 @@ export class EditAccountComponent {
   showConfirm = false;
   isLoading = false;
 
-  accountField: IFormField<keyof AccountModel>[] = [
+  accountField: IField<keyof IAccount>[] = [
     { name: 'username', label: 'Username', type: 'text', required: true },
     { name: 'password', label: 'Password', type: 'password', required: true },
 
@@ -28,10 +29,10 @@ export class EditAccountComponent {
       name: 'role',
       label: 'Role',
       type: 'select',
-      default: roleEnum.User,
+      default: RoleEnum.user,
       options: [
-        { label: 'Admin', value: roleEnum.Admin },
-        { label: 'User', value: roleEnum.User },
+        { label: 'Admin', value: RoleEnum.admin },
+        { label: 'User', value: RoleEnum.user },
       ],
     },
     {
@@ -59,5 +60,5 @@ export class EditAccountComponent {
   }
 
   // submit form
-  submitUserForm(data: AccountModel) {}
+  submitUserForm(data: IAccount) {}
 }

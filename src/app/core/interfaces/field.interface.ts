@@ -1,10 +1,10 @@
-import { roleEnum } from '../../components/accounts/models/account.model';
+import { RoleEnum } from '../enum/role.enum';
 
-export interface IFormField<K extends string = string> {
+export interface IField<K extends string = string> {
   name: K;
   label: string;
   type: 'text' | 'select' | 'checkbox' | 'password' | 'email' | 'date';
   required?: boolean;
-  default?: string | boolean | null | roleEnum;
+  default?: string | boolean | null | RoleEnum;
   options?: { label: string; value: any }[]; // dành cho select
 }

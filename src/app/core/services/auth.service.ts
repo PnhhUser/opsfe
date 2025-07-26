@@ -1,13 +1,9 @@
-import { filter, Observable, take } from 'rxjs';
-import { IUser } from '../interfaces/user.interface';
+import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ILoginForm } from '../../components/login/model/login.model';
 import { IResponseCustom } from '../interfaces/response.interface';
-import { selectLoading } from '../../store/auth/auth.selectors';
-import { Store } from '@ngrx/store';
-import * as AuthActions from '../../store/auth/auth.actions';
 import { apiUrl } from '../const/api.const';
+import { ILoginForm, IUser } from '../interfaces/auth.interface';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

@@ -2,30 +2,35 @@ import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { IResponseCustom } from '../interfaces/response.interface';
-import { apiUrl } from '../const/api.const';
 import { ILoginForm, IUser } from '../interfaces/auth.interface';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  apiUrl: string = environment.apiUrl;
+
   constructor(private http: HttpClient) {}
 
   login(loginform: ILoginForm): Observable<IResponseCustom<IUser>> {
     return this.http.post<IResponseCustom<IUser>>(
-      `${apiUrl}/auth/login`,
+      `${this.apiUrl}/auth/login`,
       loginform,
       { withCredentials: true }
     );
   }
 
   checkAuth(): Observable<IResponseCustom<IUser>> {
-    return this.http.get<IResponseCustom<IUser>>(`${apiUrl}/auth/check-auth`, {
-      withCredentials: true,
-    });
+    return this.http.get<IResponseCustom<IUser>>(
+      `${this.apiUrl}/auth/check-auth`,
+      {
+        withCredentials: true,
+      }
+    );
   }
 
   logout(): Observable<IResponseCustom<any>> {
     return this.http.post<IResponseCustom<any>>(
-      `${apiUrl}/auth/logout`,
+      `${this.apiUrl}/auth/logout`,
       {},
       { withCredentials: true }
     );
@@ -33,7 +38,7 @@ export class AuthService {
 
   refreshToken(): Observable<IResponseCustom<IUser>> {
     return this.http.post<IResponseCustom<IUser>>(
-      `${apiUrl}/auth/refresh`,
+      `${this.apiUrl}/auth/refresh`,
       {},
       { withCredentials: true }
     );

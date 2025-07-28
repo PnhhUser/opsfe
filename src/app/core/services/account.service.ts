@@ -2,21 +2,19 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { IResponseCustom } from '../interfaces/response.interface';
-import {
-  IAccount,
-  ILoadAccount,
-  IUpdateAccount,
-} from '../interfaces/account.interface';
-import { apiUrl } from '../const/api.const';
+import { ILoadAccount, IUpdateAccount } from '../interfaces/account.interface';
 import { AccountModel } from '../models/account.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
+  apiUrl: string = environment.apiUrl;
+
   constructor(private http: HttpClient) {}
 
   getAccounts(): Observable<IResponseCustom<ILoadAccount[]>> {
     return this.http.get<IResponseCustom<ILoadAccount[]>>(
-      `${apiUrl}/accounts`,
+      `${this.apiUrl}/accounts`,
       {
         withCredentials: true,
       }
@@ -25,7 +23,7 @@ export class AccountService {
 
   addAccount(model: AccountModel): Observable<IResponseCustom<ILoadAccount>> {
     return this.http.post<IResponseCustom<ILoadAccount>>(
-      `${apiUrl}/accounts`,
+      `${this.apiUrl}/accounts`,
       model,
       {
         withCredentials: true,
@@ -35,7 +33,7 @@ export class AccountService {
 
   getAccount(accountId: number): Observable<IResponseCustom<IUpdateAccount>> {
     return this.http.get<IResponseCustom<IUpdateAccount>>(
-      `${apiUrl}/accounts/${accountId}`,
+      `${this.apiUrl}/accounts/${accountId}`,
       {
         withCredentials: true,
       }
@@ -46,7 +44,7 @@ export class AccountService {
     account: IUpdateAccount
   ): Observable<IResponseCustom<ILoadAccount>> {
     return this.http.put<IResponseCustom<ILoadAccount>>(
-      `${apiUrl}/accounts`,
+      `${this.apiUrl}/accounts`,
       account,
       {
         withCredentials: true,
@@ -56,7 +54,7 @@ export class AccountService {
 
   removeAccount(accountId: number): Observable<IResponseCustom<null>> {
     return this.http.delete<IResponseCustom<null>>(
-      `${apiUrl}/accounts/${accountId}`,
+      `${this.apiUrl}/accounts/${accountId}`,
       {
         withCredentials: true,
       }

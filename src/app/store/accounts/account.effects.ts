@@ -4,13 +4,15 @@ import { AccountService } from '../../core/services/account.service';
 import { Router } from '@angular/router';
 import * as AccountAction from './account.actions';
 import { catchError, exhaustMap, map, mergeMap, of } from 'rxjs';
-import { AccountModel } from '../../core/models/account.model';
 import { ILoadAccount } from '../../core/interfaces/account.interface';
 
 @Injectable()
 export class AccountEffect {
   loadAccount$;
   addAccount$;
+  editAccount$;
+  removeAccount$;
+
   constructor(
     protected accountService: AccountService,
     protected actions$: Actions,
@@ -18,6 +20,8 @@ export class AccountEffect {
   ) {
     this.loadAccount$ = createEffect(() => this.configLoadAccount());
     this.addAccount$ = createEffect(() => this.configAddAccount());
+    this.editAccount$ = createEffect(() => this.configEditAccount());
+    this.removeAccount$ = createEffect(() => this.configRemoveAccount());
   }
 
   configLoadAccount() {
@@ -48,24 +52,70 @@ export class AccountEffect {
               createdAt,
               updatedAt,
               isAction,
-              roleId,
+              role,
             } = response.data;
 
-            const account: ILoadAccount = {
+            const created: ILoadAccount = {
               accountId,
               username,
               lastseen,
               isAction,
-              roleId,
+              role,
               createdAt,
               updatedAt,
             };
 
-            return AccountAction.addAccountSuccess({ account });
+            return AccountAction.addAccountSuccess({ account: created });
           }),
           catchError((error) => of(AccountAction.addAccountFailure({ error })))
         );
       })
+    );
+  }
+
+  configEditAccount() {
+    return this.actions$.pipe(
+      ofType(AccountAction.editAccount),
+      exhaustMap(({ account }) =>
+        this.accountService.updateAccount(account).pipe(
+          map((response) => {
+            const {
+              accountId,
+              username,
+              lastseen,
+              createdAt,
+              updatedAt,
+              isAction,
+              role,
+            } = response.data;
+
+            const updated: ILoadAccount = {
+              accountId,
+              username,
+              lastseen,
+              isAction,
+              role,
+              createdAt,
+              updatedAt,
+            };
+            return AccountAction.editAccountSuccess({ account: updated });
+          }),
+          catchError((error) => of(AccountAction.editAccountFailure({ error })))
+        )
+      )
+    );
+  }
+
+  configRemoveAccount() {
+    return this.actions$.pipe(
+      ofType(AccountAction.removeAccount),
+      exhaustMap(({ accountId }) => {
+        this.accountService.removeAccount(accountId).subscribe();
+
+        // If you have an API call, replace the following line with the API call Observable
+        return of(AccountAction.removeAccountSuccess({ accountId: accountId }));
+      }),
+      catchError((error) => of(AccountAction.removeAccountFailure({ error })))
     );
   }
 }

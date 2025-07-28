@@ -8,7 +8,16 @@
 <app-panel [column]="1">
   <app-dynamic-form
     [fields]="accountField"
+    [initialValue]="initialValue"
     (formSubmit)="submitUserForm($event)"
     [messageError]="messageError"
   ></app-dynamic-form>
 </app-panel>
+
+<app-confirm-dialog
+  *ngIf="showConfirm"
+  [message]="'Bạn có chắc muốn sửa thành không?'"
+  [loading]="isLoading"
+  (confirm)="confirmEdit()"
+  (cancel)="cancelEdit()"
+></app-confirm-dialog>

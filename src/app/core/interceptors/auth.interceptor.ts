@@ -19,6 +19,7 @@ import { AuthService } from '../services/auth.service';
 import { Store } from '@ngrx/store';
 import * as AuthActions from '../../store/auth/auth.actions';
 import { IAuthState } from '../interfaces/auth.interface';
+import { EMPTY } from 'rxjs';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -38,6 +39,12 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
+        // Nếu lỗi từ /auth/refresh → không log, không xử lý tiếp
+        if (error.status === 401 && req.url.includes('/auth/refresh')) {
+          return EMPTY; // 🚫 không ném lỗi nữa
+        }
+
+        // 401 và không phải refresh → xử lý refresh
         if (error.status === 401 && !this.shouldSkipRefresh(req.url)) {
           return this.handle401Error(authReq, next);
         }

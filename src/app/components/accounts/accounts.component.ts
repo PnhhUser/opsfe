@@ -46,7 +46,7 @@ export class AccountComponent {
 
   // Định nghĩa các cột hiển thị trong AG Grid
   columnDefs: ColDef<IAccountTable>[] = [
-    { field: 'username', sortable: true, filter: true },
+    { field: 'username', sortable: true, filter: true, minWidth: 140 },
     {
       field: 'role',
       sortable: true,
@@ -65,6 +65,7 @@ export class AccountComponent {
       </span>
     `;
       },
+      minWidth: 100,
     },
 
     // Active / Inactive badge
@@ -85,6 +86,7 @@ export class AccountComponent {
       </span>
     `;
       },
+      minWidth: 100,
     },
 
     // Online / Offline badge
@@ -105,11 +107,12 @@ export class AccountComponent {
       </span>
     `;
       },
+      minWidth: 100,
     },
 
     // Hiển thị ngày tạo và ngày cập nhật
-    { field: 'createDate', sortable: true },
-    { field: 'UpdateDate', sortable: true },
+    { field: 'createDate', sortable: true, minWidth: 150 },
+    { field: 'UpdateDate', sortable: true, minWidth: 150 },
   ];
 
   // Dữ liệu hàng cho bảng
@@ -185,7 +188,7 @@ export class AccountComponent {
     this.accounts$.subscribe((accounts: ILoadAccount[]) => {
       this.rowData = accounts.map((account: ILoadAccount) => ({
         accountId: account.accountId,
-        role: account.roleId.toString(),
+        role: account.role,
         username: account.username,
         Active: account.isAction,
         createDate: this.toLocaleDateString(account.createdAt),

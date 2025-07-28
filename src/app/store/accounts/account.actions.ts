@@ -53,7 +53,10 @@ export const editAccountFailure = createAction(
 );
 
 // remove account
-export const removeAccount = createAction('[Account] Remove account');
+export const removeAccount = createAction(
+  '[Account] Remove account',
+  props<{ accountId: number }>()
+);
 
 export const removeAccountSuccess = createAction(
   '[Account] Remove account Success',

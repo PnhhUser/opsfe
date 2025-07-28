@@ -1,4 +1,11 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -29,6 +36,17 @@ export class DynamicFormComponent<T extends Record<string, any> = any>
   form!: FormGroup;
 
   constructor(private fb: FormBuilder) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (
+      changes['initialValue'] &&
+      !changes['initialValue'].firstChange &&
+      this.form &&
+      this.initialValue
+    ) {
+      this.form.patchValue(this.initialValue);
+    }
+  }
 
   ngOnInit(): void {
     const group: Record<string, any> = {};

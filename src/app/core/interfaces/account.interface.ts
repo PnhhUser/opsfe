@@ -4,7 +4,7 @@ import { IError } from './error.interface';
 export interface ILoadAccount {
   accountId: number;
   createdAt: string;
-  roleId: number;
+  role: RoleEnum;
   isAction: boolean;
   lastseen: string;
   updatedAt: string;

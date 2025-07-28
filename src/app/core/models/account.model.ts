@@ -1,11 +1,11 @@
 import { RoleEnum } from '../enum/role.enum';
-import { IAccount } from '../interfaces/account.interface';
+import { IAccount, IUpdateAccount } from '../interfaces/account.interface';
 
 export class AccountModel {
   public username: string;
   public password: string;
-  public roleId: RoleEnum;
-  public isActive: boolean;
+  public role: RoleEnum;
+  public active: boolean;
 
   constructor(account: IAccount) {
     if (account.username.includes(' ')) {
@@ -18,8 +18,8 @@ export class AccountModel {
 
     this.username = account.username;
     this.password = account.password;
-    this.isActive = account.active;
-    this.roleId = account.role;
+    this.active = account.active;
+    this.role = account.role;
   }
 
   public isPasswordMatch(rawPassword: string): boolean {

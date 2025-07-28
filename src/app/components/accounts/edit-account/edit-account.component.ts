@@ -14,7 +14,7 @@ import {
   selectError,
   selectLoading,
 } from '../../../store/accounts/account.selectors';
-import { combineLatest, filter, pairwise, startWith, Subscription } from 'rxjs';
+import { pairwise, startWith, Subscription, take } from 'rxjs';
 
 @Component({
   selector: 'app-edit-account',
@@ -38,6 +38,7 @@ export class EditAccountComponent {
   showConfirm = false;
   isLoading = false;
   pendingData: IUpdateAccount | null = null;
+  hasDispatched = false;
 
   private subscriptions = new Subscription();
 
@@ -119,31 +120,28 @@ export class EditAccountComponent {
       },
     });
 
-    const combined = combineLatest([this.loadingState$, this.errorState$])
-      .pipe(
-        filter(
-          ([[prevLoading, currentLoading], error]) =>
-            prevLoading === true && currentLoading === false
-        )
-      )
-      .subscribe(([[prevLoading, currentLoading], error]) => {
-        if (error) {
-          this.messageError = error.message;
-          this.isLoading = false;
-          this.showConfirm = false;
-        } else {
-          setTimeout(() => {
+    const loadingSub = this.loadingState$.subscribe(([prev, curr]) => {
+      if (!this.hasDispatched) return;
+
+      if (prev === true && curr === false) {
+        this.errorState$.pipe(take(1)).subscribe((error) => {
+          if (error) {
+            this.messageError = error.message;
             this.isLoading = false;
             this.showConfirm = false;
-            this.pendingData = null;
-            this.router.navigate(['/module/human-resources/accounts'], {
-              relativeTo: this.activatedRoute,
-            });
-          }, 2000);
-        }
-      });
+          } else {
+            setTimeout(() => {
+              this.isLoading = false;
+              this.showConfirm = false;
+              this.pendingData = null;
+              this.router.navigateByUrl('/module/human-resources/accounts');
+            }, 2000);
+          }
+        });
+      }
+    });
 
-    this.subscriptions.add(combined);
+    this.subscriptions.add(loadingSub);
   }
 
   // Xử lý quay lại route cha
@@ -167,6 +165,7 @@ export class EditAccountComponent {
 
   confirmEdit() {
     if (!this.pendingData) return;
+    this.hasDispatched = true;
     this.isLoading = true;
 
     this.store.dispatch(

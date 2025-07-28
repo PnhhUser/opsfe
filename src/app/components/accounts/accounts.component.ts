@@ -112,7 +112,7 @@ export class AccountComponent {
 
     // Hiển thị ngày tạo và ngày cập nhật
     { field: 'createDate', sortable: true, minWidth: 150 },
-    { field: 'UpdateDate', sortable: true, minWidth: 150 },
+    { field: 'updateDate', sortable: true, minWidth: 150 },
   ];
 
   // Dữ liệu hàng cho bảng
@@ -123,9 +123,9 @@ export class AccountComponent {
     rowSelection: 'single',
     pagination: true,
     paginationPageSize: 10,
-    paginationPageSizeSelector: [10, 20, 50, 100],
-    rowHeight: 44,
-    headerHeight: 44,
+    paginationPageSizeSelector: [5, 10, 20, 50, 100],
+    rowHeight: 50,
+    headerHeight: 46,
     domLayout: 'autoHeight',
   };
 
@@ -160,11 +160,6 @@ export class AccountComponent {
     document.addEventListener('click', this.onDocumentClick);
   }
 
-  ngOnDestroy() {
-    // Remove listener để tránh memory leak
-    document.removeEventListener('click', this.onDocumentClick);
-  }
-
   // Kiểm tra có đang ở route cha hay không
   isParentRoute(): boolean {
     const currentRoute = this.activatedRoute;
@@ -192,7 +187,7 @@ export class AccountComponent {
         username: account.username,
         Active: account.isAction,
         createDate: this.toLocaleDateString(account.createdAt),
-        UpdateDate: this.toLocaleDateString(account.updatedAt),
+        updateDate: this.toLocaleDateString(account.updatedAt),
         online: account.lastseen,
       }));
     });
@@ -216,6 +211,15 @@ export class AccountComponent {
     });
   }
 
+  // xuất CSV
+  exportCSV() {
+    if (!this.gridApi) return;
+
+    this.gridApi.exportDataAsCsv({
+      fileName: 'DanhSachTaiKhoan.csv',
+    });
+  }
+
   onDocumentClick = (event: MouseEvent) => {
     const gridElement = document.querySelector('ag-grid-angular');
     if (gridElement && !gridElement.contains(event.target as Node)) {
@@ -223,4 +227,9 @@ export class AccountComponent {
       this.selectAccountId = null; // reset khi click ra ngoài
     }
   };
+
+  ngOnDestroy() {
+    // Remove listener để tránh memory leak
+    document.removeEventListener('click', this.onDocumentClick);
+  }
 }

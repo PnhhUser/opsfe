@@ -25,6 +25,7 @@ export class RemoveAccountComponent {
   showConfirm = true;
   isLoading = false;
   pendingData: IUser | null = null;
+  hasDispatched = false;
 
   loading$: Observable<boolean>;
   private destroy$ = new Subject<void>();
@@ -56,32 +57,28 @@ export class RemoveAccountComponent {
         };
       },
       error: (err) => {
-        console.log(err);
-        // có thể show dialog hoặc redirect về trang danh sách
         this.router.navigateByUrl('/module/human-resources/accounts');
       },
-    });
-
-    this.loading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
-      this.isLoading = loading;
     });
 
     this.loading$
       .pipe(startWith(false), pairwise(), takeUntil(this.destroy$))
       .subscribe(([prev, curr]) => {
-        if (prev === false && curr === true) {
-          setTimeout(() => {
-            this.showConfirm = false;
-            this.pendingData = null;
-            this.router.navigateByUrl('/module/human-resources/accounts');
-          }, 2000);
-        }
+        if (!this.hasDispatched) return;
+
+        // Chờ 2 giây rồi mới đóng dialog và redirect
+        setTimeout(() => {
+          this.showConfirm = false;
+          this.pendingData = null;
+          this.router.navigateByUrl('/module/human-resources/accounts');
+        }, 2000);
       });
   }
 
   confirm() {
     if (!this.pendingData) return;
-    console.log(1);
+    this.hasDispatched = true;
+    this.isLoading = true;
 
     this.store.dispatch(
       AccountActions.removeAccount({ accountId: this.pendingData.id })
@@ -90,6 +87,8 @@ export class RemoveAccountComponent {
 
   cancel() {
     this.showConfirm = false;
+    this.isLoading = false;
+
     this.router.navigateByUrl('/module/human-resources/accounts');
   }
 

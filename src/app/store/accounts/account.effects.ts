@@ -67,7 +67,17 @@ export class AccountEffect {
 
             return AccountAction.addAccountSuccess({ account: created });
           }),
-          catchError((error) => of(AccountAction.addAccountFailure({ error })))
+          catchError((error) =>
+            of(
+              AccountAction.addAccountFailure({
+                error: {
+                  message:
+                    error?.error?.message ||
+                    'Lỗi không xác định khi tạo tài khoản',
+                },
+              })
+            )
+          )
         );
       })
     );
@@ -100,7 +110,17 @@ export class AccountEffect {
             };
             return AccountAction.editAccountSuccess({ account: updated });
           }),
-          catchError((error) => of(AccountAction.editAccountFailure({ error })))
+          catchError((error) =>
+            of(
+              AccountAction.editAccountFailure({
+                error: {
+                  message:
+                    error?.error?.message ||
+                    'Lỗi không xác định khi tạo tài khoản',
+                },
+              })
+            )
+          )
         )
       )
     );
@@ -115,7 +135,16 @@ export class AccountEffect {
         // If you have an API call, replace the following line with the API call Observable
         return of(AccountAction.removeAccountSuccess({ accountId: accountId }));
       }),
-      catchError((error) => of(AccountAction.removeAccountFailure({ error })))
+      catchError((error) =>
+        of(
+          AccountAction.removeAccountFailure({
+            error: {
+              message:
+                error?.error?.message || 'Lỗi không xác định khi tạo tài khoản',
+            },
+          })
+        )
+      )
     );
   }
 }

@@ -5,4 +5,34 @@
 >
   ← {{ parentLabel }}
 </button>
-Employee
+
+<!-- phần button  -->
+<div *ngIf="isParentRoute()" class="flex">
+  <app-crud
+    [selectedItem]="selectEmpId"
+    name="account"
+    [prefixRouter]="prefixRouter"
+  />
+
+  <button
+    class="border-teal-700 text-teal-700 border text-sm font-medium rounded-md ms-2 shadow mb-4 px-4 hover:bg-teal-50"
+    (click)="exportCSV()"
+  >
+    Xuất CSV
+  </button>
+</div>
+
+<!-- // phần table -->
+<div *ngIf="isParentRoute()">
+  <ag-grid-angular
+    class="ag-theme-alpine w-full h-full"
+    [gridOptions]="gridOptions"
+    [columnDefs]="columnDefs"
+    [animateRows]="true"
+    [rowData]="rowData"
+    (gridReady)="onGridReady($event)"
+    (rowClicked)="onRowClicked($event)"
+  ></ag-grid-angular>
+</div>
+
+<router-outlet />

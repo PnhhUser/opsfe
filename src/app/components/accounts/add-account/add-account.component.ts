@@ -12,7 +12,14 @@ import { IAccount } from '../../../core/interfaces/account.interface';
 import { AccountModel } from '../../../core/models/account.model';
 import * as AccountActions from '../../../store/accounts/account.actions';
 import * as AccountSelectors from '../../../store/accounts/account.selectors';
-import { combineLatest, filter, pairwise, startWith, Subscription } from 'rxjs';
+import {
+  combineLatest,
+  filter,
+  pairwise,
+  startWith,
+  Subscription,
+  take,
+} from 'rxjs';
 
 @Component({
   standalone: true,
@@ -31,6 +38,7 @@ export class AddAccountComponent implements OnInit, OnDestroy {
   showConfirm = false;
   isLoading = false;
   pendingData: AccountModel | null = null;
+  hasDispatched = false;
 
   private subscriptions = new Subscription();
 
@@ -66,36 +74,38 @@ export class AddAccountComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    const loading$ = this.store
+    const loadingSub = this.store
       .select(AccountSelectors.selectLoading)
-      .pipe(startWith(false), pairwise());
-    const error$ = this.store.select(AccountSelectors.selectError);
+      .pipe(startWith(false), pairwise())
+      .subscribe(([prev, curr]) => {
+        if (!this.hasDispatched) return;
 
-    const combined = combineLatest([loading$, error$])
-      .pipe(
-        filter(
-          ([[prevLoading, currentLoading], error]) =>
-            prevLoading === true && currentLoading === false
-        )
-      )
-      .subscribe(([[prevLoading, currentLoading], error]) => {
-        if (error) {
-          this.messageError = error.message;
-          this.isLoading = false;
-          this.showConfirm = false;
-        } else {
-          setTimeout(() => {
-            this.isLoading = false;
-            this.showConfirm = false;
-            this.pendingData = null;
-            this.router.navigate(['../'], {
-              relativeTo: this.activatedRoute,
+        if (prev === true && curr === false) {
+          // Khi xử lý xong, kiểm tra error sau
+          this.store
+            .select(AccountSelectors.selectError)
+            .pipe(take(1))
+            .subscribe((error) => {
+              if (error) {
+                this.messageError = error.message;
+                this.isLoading = false;
+                this.showConfirm = false;
+              } else {
+                console.log(1);
+                setTimeout(() => {
+                  this.isLoading = false;
+                  this.showConfirm = false;
+                  this.pendingData = null;
+                  this.router.navigate(['../'], {
+                    relativeTo: this.activatedRoute,
+                  });
+                }, 2000);
+              }
             });
-          }, 2000);
         }
       });
 
-    this.subscriptions.add(combined);
+    this.subscriptions.add(loadingSub);
   }
 
   goBack() {
@@ -117,6 +127,7 @@ export class AddAccountComponent implements OnInit, OnDestroy {
 
   confirmAdd() {
     if (!this.pendingData) return;
+    this.hasDispatched = true;
     this.isLoading = true;
     this.store.dispatch(
       AccountActions.addAccount({ account: this.pendingData })

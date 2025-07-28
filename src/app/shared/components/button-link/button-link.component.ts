@@ -9,7 +9,7 @@ import { RouterModule } from '@angular/router';
   template: `
     <a
       [routerLink]="url"
-      class="px-4 py-2 border rounded-md text-sm font-medium text-center inline-block  transition {{
+      class="px-4 py-2 border rounded-md text-sm font-medium text-center inline-block transition {{
         styleCss ?? 'text-[#16162a] hover:bg-gray-100 w-56'
       }}"
     >

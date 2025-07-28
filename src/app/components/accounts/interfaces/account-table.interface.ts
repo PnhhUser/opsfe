@@ -8,5 +8,5 @@ export interface IAccountTable {
   online: string | null;
   Active: boolean;
   createDate: string;
-  UpdateDate: string;
+  updateDate: string;
 }

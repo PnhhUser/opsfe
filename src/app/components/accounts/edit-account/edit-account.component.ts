@@ -52,7 +52,7 @@ export class EditAccountComponent {
     { name: 'password', label: 'Password', type: 'password' },
 
     {
-      name: 'role',
+      name: 'roleId',
       label: 'Role',
       type: 'select',
       default: RoleEnum.user,
@@ -62,7 +62,7 @@ export class EditAccountComponent {
       ],
     },
     {
-      name: 'active',
+      name: 'isActive',
       label: 'Account active',
       type: 'checkbox',
       default: true,
@@ -111,7 +111,8 @@ export class EditAccountComponent {
 
         this.initialValue = {
           username: raw.username,
-          role: raw.role === RoleEnum.admin ? RoleEnum.admin : RoleEnum.user,
+          roleId:
+            raw.roleId === RoleEnum.admin ? RoleEnum.admin : RoleEnum.user,
           accountId: raw.accountId,
         };
       },
@@ -152,6 +153,10 @@ export class EditAccountComponent {
   // submit form
   submitUserForm(data: IUpdateAccount) {
     try {
+      if (data.username.includes(' ')) {
+        throw new Error('Username must not contain spaces');
+      }
+
       this.pendingData = data;
       this.showConfirm = true;
     } catch (e) {

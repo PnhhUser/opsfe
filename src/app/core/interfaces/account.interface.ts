@@ -4,8 +4,8 @@ import { IError } from './error.interface';
 export interface ILoadAccount {
   accountId: number;
   createdAt: string;
-  role: RoleEnum;
-  isAction: boolean;
+  roleId: RoleEnum;
+  isActive: boolean;
   lastseen: string;
   updatedAt: string;
   username: string;
@@ -14,8 +14,8 @@ export interface ILoadAccount {
 export interface IAccount {
   username: string;
   password: string;
-  active: boolean;
-  role: RoleEnum;
+  isActive: boolean;
+  roleId: RoleEnum;
 }
 
 export interface IUpdateAccount extends IAccount {

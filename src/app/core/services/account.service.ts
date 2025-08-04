@@ -2,8 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { IResponseCustom } from '../interfaces/response.interface';
-import { ILoadAccount, IUpdateAccount } from '../interfaces/account.interface';
-import { AccountModel } from '../models/account.model';
+import {
+  IAccount,
+  ILoadAccount,
+  IUpdateAccount,
+} from '../interfaces/account.interface';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -21,7 +24,7 @@ export class AccountService {
     );
   }
 
-  addAccount(model: AccountModel): Observable<IResponseCustom<ILoadAccount>> {
+  addAccount(model: IAccount): Observable<IResponseCustom<ILoadAccount>> {
     return this.http.post<IResponseCustom<ILoadAccount>>(
       `${this.apiUrl}/accounts`,
       model,

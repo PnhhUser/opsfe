@@ -5,6 +5,7 @@ export interface IField<K extends string = string> {
   label: string;
   type:
     | 'text'
+    | 'textarea'
     | 'select'
     | 'checkbox'
     | 'password'

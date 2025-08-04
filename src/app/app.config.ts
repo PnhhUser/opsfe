@@ -19,14 +19,20 @@ import {
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { accountReducer } from './store/accounts/account.reducer';
 import { AccountEffect } from './store/accounts/account.effects';
+import { departmentReducer } from './store/departments/department.reducer';
+import { DepartmentEffect } from './store/departments/department.effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(withInterceptorsFromDi()),
     provideRouter(routes),
-    provideStore({ auth: authReducer, account: accountReducer }),
-    provideEffects([AuthEffects, AccountEffect]),
+    provideStore({
+      auth: authReducer,
+      account: accountReducer,
+      department: departmentReducer,
+    }),
+    provideEffects([AuthEffects, AccountEffect, DepartmentEffect]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
     {
       provide: HTTP_INTERCEPTORS,

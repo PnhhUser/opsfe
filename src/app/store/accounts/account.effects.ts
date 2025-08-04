@@ -51,16 +51,16 @@ export class AccountEffect {
               lastseen,
               createdAt,
               updatedAt,
-              isAction,
-              role,
+              isActive: isAction,
+              roleId: role,
             } = response.data;
 
             const created: ILoadAccount = {
               accountId,
               username,
               lastseen,
-              isAction,
-              role,
+              isActive: isAction,
+              roleId: role,
               createdAt,
               updatedAt,
             };
@@ -95,16 +95,16 @@ export class AccountEffect {
               lastseen,
               createdAt,
               updatedAt,
-              isAction,
-              role,
+              isActive: isAction,
+              roleId: role,
             } = response.data;
 
             const updated: ILoadAccount = {
               accountId,
               username,
               lastseen,
-              isAction,
-              role,
+              isActive: isAction,
+              roleId: role,
               createdAt,
               updatedAt,
             };

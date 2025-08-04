@@ -9,17 +9,9 @@ import { AccountService } from '../../../core/services/account.service';
 import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog/confirm-dialog.component';
 import { RoleEnum } from '../../../core/enum/role.enum';
 import { IAccount } from '../../../core/interfaces/account.interface';
-import { AccountModel } from '../../../core/models/account.model';
 import * as AccountActions from '../../../store/accounts/account.actions';
 import * as AccountSelectors from '../../../store/accounts/account.selectors';
-import {
-  combineLatest,
-  filter,
-  pairwise,
-  startWith,
-  Subscription,
-  take,
-} from 'rxjs';
+import { pairwise, startWith, Subscription, take } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -37,7 +29,7 @@ export class AddAccountComponent implements OnInit, OnDestroy {
   messageError: string = '';
   showConfirm = false;
   isLoading = false;
-  pendingData: AccountModel | null = null;
+  pendingData: IAccount | null = null;
   hasDispatched = false;
 
   private subscriptions = new Subscription();
@@ -46,7 +38,7 @@ export class AddAccountComponent implements OnInit, OnDestroy {
     { name: 'username', label: 'Username', type: 'text', required: true },
     { name: 'password', label: 'Password', type: 'password', required: true },
     {
-      name: 'role',
+      name: 'roleId',
       label: 'Role',
       type: 'select',
       default: RoleEnum.user,
@@ -56,7 +48,7 @@ export class AddAccountComponent implements OnInit, OnDestroy {
       ],
     },
     {
-      name: 'active',
+      name: 'isActive',
       label: 'Account active',
       type: 'checkbox',
       default: true,
@@ -91,7 +83,6 @@ export class AddAccountComponent implements OnInit, OnDestroy {
                 this.isLoading = false;
                 this.showConfirm = false;
               } else {
-                console.log(1);
                 setTimeout(() => {
                   this.isLoading = false;
                   this.showConfirm = false;
@@ -114,7 +105,15 @@ export class AddAccountComponent implements OnInit, OnDestroy {
 
   submitUserForm(data: IAccount) {
     try {
-      this.pendingData = new AccountModel(data);
+      if (data.username.includes(' ')) {
+        throw new Error('Username must not contain spaces');
+      }
+
+      if (!data.password || data.password.length < 6) {
+        throw new Error('Password must be at least 6 characters');
+      }
+
+      this.pendingData = data;
       this.showConfirm = true;
     } catch (e) {
       if (e instanceof Error) {

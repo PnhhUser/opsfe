@@ -5,7 +5,6 @@ import {
   ILoadAccount,
   IUpdateAccount,
 } from '../../core/interfaces/account.interface';
-import { AccountModel } from '../../core/models/account.model';
 
 // load accounts
 export const loadAccount = createAction('[Account] Load account');
@@ -23,7 +22,7 @@ export const loadAccountFailure = createAction(
 // add account
 export const addAccount = createAction(
   '[Account] Add account',
-  props<{ account: AccountModel }>()
+  props<{ account: IAccount }>()
 );
 
 export const addAccountSuccess = createAction(

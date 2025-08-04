@@ -1,4 +1,3 @@
-import { IAccount } from './../../core/interfaces/account.interface';
 import { createReducer, on } from '@ngrx/store';
 import { IAccountState } from '../../core/interfaces/account.interface';
 import * as AccountAction from './account.actions';

@@ -9,7 +9,7 @@
   <div
     *ngFor="let field of fields"
     class="space-y-1 w-full"
-    [class.col-span-2]="field.type === 'checkbox'"
+    [class.col-span-2]="field.type === 'checkbox' || field.type === 'textarea'"
   >
     <!-- Label -->
     <label
@@ -53,6 +53,15 @@
         {{ field.label }}
       </label>
     </div>
+
+    <!--  Textarea -->
+    <textarea
+      *ngIf="field.type === 'textarea'"
+      [id]="field.name"
+      [formControlName]="field.name"
+      rows="4"
+      class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-indigo-300 focus:border-indigo-500 resize-none"
+    ></textarea>
 
     <!-- Validation -->
     <div *ngIf="form.get(field.name)?.invalid && form.get(field.name)?.touched">

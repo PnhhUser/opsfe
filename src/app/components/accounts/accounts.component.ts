@@ -21,7 +21,6 @@ import {
 import { CRUDComponent } from '../../shared/components/crud/crud.component';
 import { ILoadAccount } from '../../core/interfaces/account.interface';
 import { RoleEnum } from '../../core/enum/role.enum';
-import { IAccountTable } from './interfaces/account-table.interface';
 import { filter } from 'rxjs';
 import { Store } from '@ngrx/store';
 import * as AccountActions from '../../store/accounts/account.actions';
@@ -45,10 +44,11 @@ export class AccountComponent {
   accounts$;
 
   // Định nghĩa các cột hiển thị trong AG Grid
-  columnDefs: ColDef<IAccountTable>[] = [
+  columnDefs: ColDef<ILoadAccount>[] = [
     { field: 'username', sortable: true, filter: true, minWidth: 140 },
     {
-      field: 'role',
+      field: 'roleId',
+      headerName: 'Role',
       sortable: true,
       cellRenderer: (params: ICellRendererParams) => {
         const roleId = Number.parseInt(params.value);
@@ -70,7 +70,7 @@ export class AccountComponent {
 
     // Active / Inactive badge
     {
-      field: 'Active',
+      field: 'isActive',
       headerName: 'Status',
       sortable: true,
       cellRenderer: (params: ICellRendererParams) => {
@@ -91,7 +91,7 @@ export class AccountComponent {
 
     // Online / Offline badge
     {
-      field: 'online',
+      field: 'lastseen',
       headerName: 'Online',
       sortable: true,
       cellRenderer: (params: ICellRendererParams) => {
@@ -111,12 +111,22 @@ export class AccountComponent {
     },
 
     // Hiển thị ngày tạo và ngày cập nhật
-    { field: 'createDate', sortable: true, minWidth: 150 },
-    { field: 'updateDate', sortable: true, minWidth: 150 },
+    {
+      field: 'createdAt',
+      headerName: 'Date Added',
+      sortable: true,
+      minWidth: 150,
+    },
+    {
+      field: 'updatedAt',
+      headerName: 'Date Edited',
+      sortable: true,
+      minWidth: 150,
+    },
   ];
 
   // Dữ liệu hàng cho bảng
-  rowData: IAccountTable[] = [];
+  rowData: ILoadAccount[] = [];
 
   // Cấu hình chung của AG Grid
   gridOptions: GridOptions = {
@@ -124,8 +134,6 @@ export class AccountComponent {
     pagination: true,
     paginationPageSize: 10,
     paginationPageSizeSelector: [5, 10, 20, 50, 100],
-    rowHeight: 50,
-    headerHeight: 46,
     domLayout: 'autoHeight',
   };
 
@@ -183,12 +191,12 @@ export class AccountComponent {
     this.accounts$.subscribe((accounts: ILoadAccount[]) => {
       this.rowData = accounts.map((account: ILoadAccount) => ({
         accountId: account.accountId,
-        role: account.role,
+        roleId: account.roleId,
         username: account.username,
-        Active: account.isAction,
-        createDate: this.toLocaleDateString(account.createdAt),
-        updateDate: this.toLocaleDateString(account.updatedAt),
-        online: account.lastseen,
+        isActive: account.isActive,
+        createdAt: this.toLocaleDateString(account.createdAt),
+        updatedAt: this.toLocaleDateString(account.updatedAt),
+        lastseen: account.lastseen,
       }));
     });
   }

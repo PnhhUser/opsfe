@@ -84,6 +84,8 @@ export class DepartmentComponent {
 
   ngOnInit() {
     this.loadData();
+
+    document.addEventListener('click', this.onDocumentClick);
   }
 
   isParentRoute(): boolean {
@@ -122,5 +124,24 @@ export class DepartmentComponent {
     });
   }
 
-  exportCSV() {}
+  exportCSV() {
+    if (!this.gridApi) return;
+
+    this.gridApi.exportDataAsCsv({
+      fileName: 'DanhSachPhongBan.csv',
+    });
+  }
+
+  onDocumentClick = (event: MouseEvent) => {
+    const gridElement = document.querySelector('ag-grid-angular');
+    if (gridElement && !gridElement.contains(event.target as Node)) {
+      this.gridApi?.deselectAll();
+      this.selectDepartmentId = null; // reset khi click ra ngoài
+    }
+  };
+
+  ngOnDestroy() {
+    // Remove listener để tránh memory leak
+    document.removeEventListener('click', this.onDocumentClick);
+  }
 }

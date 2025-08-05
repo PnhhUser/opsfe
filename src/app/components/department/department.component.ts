@@ -11,26 +11,21 @@ import {
   RowClickedEvent,
 } from 'ag-grid-community';
 import { Store } from '@ngrx/store';
-import { selectDepartments } from '../../store/departments/department.selectors';
+import {
+  selectDepartmentLoading,
+  selectDepartments,
+} from '../../store/departments/department.selectors';
 import { Observable } from 'rxjs';
 import { IloadDepartment } from '../../core/interfaces/department.interface';
 import { ActionDepartment } from '../../store/departments/department.actions';
 import { DatetimeUtils } from '../../core/utils/datetime.utils';
-
-interface IDepartmentTable {
-  departmentId: number;
-  name: string;
-  key: string;
-  description: string;
-  createDate: string;
-  updateDate: string;
-}
 
 @Component({
   selector: 'app-account',
   standalone: true,
   templateUrl: './department.component.html',
   imports: [CommonModule, AgGridModule, RouterOutlet, CRUDComponent],
+  styleUrl: './department.component.css',
 })
 export class DepartmentComponent {
   parentLabel = 'Back';
@@ -38,9 +33,10 @@ export class DepartmentComponent {
   gridApi!: GridApi;
   prefixRouter: string;
 
-  rowData: IDepartmentTable[] = [];
+  rowData: IloadDepartment[] = [];
 
   departments$: Observable<IloadDepartment[]>;
+  loading$;
 
   // Cấu hình chung của AG Grid
   gridOptions: GridOptions = {
@@ -51,18 +47,18 @@ export class DepartmentComponent {
     domLayout: 'autoHeight',
   };
 
-  columnDefs: ColDef<IDepartmentTable>[] = [
+  columnDefs: ColDef<IloadDepartment>[] = [
     { field: 'name', sortable: true, filter: true, minWidth: 140 },
     { field: 'key', sortable: true, filter: true, minWidth: 140 },
     { field: 'description', sortable: true, minWidth: 140 },
     {
-      field: 'createDate',
+      field: 'createAt',
       headerName: 'Date Added',
       sortable: true,
       minWidth: 150,
     },
     {
-      field: 'updateDate',
+      field: 'updateAt',
       headerName: 'Date Edited',
       sortable: true,
       minWidth: 150,
@@ -80,6 +76,7 @@ export class DepartmentComponent {
     this.prefixRouter = this.router.url;
 
     this.departments$ = this.store.select(selectDepartments);
+    this.loading$ = this.store.select(selectDepartmentLoading);
   }
 
   ngOnInit() {
@@ -117,8 +114,8 @@ export class DepartmentComponent {
           name: department.name,
           key: department.key,
           description: department.description,
-          updateDate: DatetimeUtils.toLocaleDateString(department.updateAt),
-          createDate: DatetimeUtils.toLocaleDateString(department.createAt),
+          updateAt: DatetimeUtils.toLocaleDateString(department.updateAt),
+          createAt: DatetimeUtils.toLocaleDateString(department.createAt),
         };
       });
     });

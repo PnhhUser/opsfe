@@ -11,7 +11,8 @@ export interface IField<K extends string = string> {
     | 'password'
     | 'email'
     | 'date'
-    | 'hidden';
+    | 'hidden'
+    | 'number';
   required?: boolean;
   default?: string | boolean | null | RoleEnum;
   options?: { label: string; value: any }[]; // dành cho select

@@ -13,7 +13,7 @@
   >
     <!-- Label -->
     <label
-      *ngIf="field.type !== 'checkbox'"
+      *ngIf="field.type !== 'checkbox' && field.type !== 'hidden'"
       [for]="field.name"
       class="block text-sm font-medium text-gray-700"
     >
@@ -21,12 +21,33 @@
     </label>
 
     <!-- Text, Email, Password, Date -->
+    <!-- Đặc biệt xử lý field baseSalary -->
     <input
-      *ngIf="['text', 'email', 'password', 'date'].includes(field.type)"
-      [type]="field.type"
+      *ngIf="
+        ['text', 'email', 'password', 'date', 'number'].includes(field.type)
+      "
+      [type]="field.name === 'baseSalary' ? 'text' : field.type"
       [id]="field.name"
+      [value]="
+        field.name === 'baseSalary'
+          ? formatNumber(form.get(field.name)?.value?.toString() || '')
+          : form.get(field.name)?.value
+      "
+      (input)="
+        field.name === 'baseSalary'
+          ? onFormattedNumberInput(field.name, $event)
+          : null
+      "
       [formControlName]="field.name"
       class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-indigo-300 focus:border-indigo-500"
+    />
+
+    <!-- hidden -->
+    <input
+      *ngIf="field.type === 'hidden'"
+      type="hidden"
+      [id]="field.name"
+      [formControlName]="field.name"
     />
 
     <!-- Select -->

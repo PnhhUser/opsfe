@@ -3,23 +3,17 @@ import { Component } from '@angular/core';
 import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog/confirm-dialog.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { distinctUntilChanged, filter, map, Observable, take } from 'rxjs';
+
+import { ILoadPosition } from '../../../core/interfaces/position.interface';
 import {
-  distinctUntilChanged,
-  filter,
-  map,
-  Observable,
-  pairwise,
-  take,
-} from 'rxjs';
-import { IloadDepartment } from '../../../core/interfaces/department.interface';
-import {
-  selectDepartmentLoading,
-  selectDepartments,
-} from '../../../store/departments/department.selectors';
-import { ActionDepartment } from '../../../store/departments/department.actions';
+  selectPositionLoading,
+  selectPositions,
+} from '../../../store/positions/position.selector';
+import { ActionPosition } from '../../../store/positions/position.actions';
 
 @Component({
-  selector: 'app-remove-department',
+  selector: 'app-remove-position',
   standalone: true,
   imports: [CommonModule, ConfirmDialogComponent],
   template: `<app-confirm-dialog
@@ -30,10 +24,10 @@ import { ActionDepartment } from '../../../store/departments/department.actions'
     (cancel)="cancel()"
   ></app-confirm-dialog>`,
 })
-export class RemoveDepartmentComponent {
+export class RemovePositionComponent {
   showConfirm = true;
 
-  pendingData: IloadDepartment | null = null;
+  pendingData: ILoadPosition | null = null;
 
   loading$: Observable<boolean>;
 
@@ -42,23 +36,23 @@ export class RemoveDepartmentComponent {
     private activatedRoute: ActivatedRoute,
     private store: Store
   ) {
-    this.loading$ = this.store.select(selectDepartmentLoading);
+    this.loading$ = this.store.select(selectPositionLoading);
   }
 
   ngOnInit() {
-    const departmentId = this.activatedRoute.snapshot.params?.['departmentId'];
+    const positionId = this.activatedRoute.snapshot.params?.['positionId'];
 
-    if (!departmentId) {
-      this.router.navigateByUrl('/module/human-resources/departments');
+    if (!positionId) {
+      this.router.navigateByUrl('/module/human-resources/positions');
       return;
     }
 
     this.store
-      .select(selectDepartments)
+      .select(selectPositions)
       .pipe(
         map((data) => {
           return data
-            .filter((v) => v.departmentId === Number.parseInt(departmentId))
+            .filter((v) => v.positionId === Number.parseInt(positionId))
             .find((v) => v);
         })
       )
@@ -73,8 +67,8 @@ export class RemoveDepartmentComponent {
     if (!this.pendingData) return;
 
     this.store.dispatch(
-      ActionDepartment.removeDepartment({
-        departmentId: this.pendingData.departmentId,
+      ActionPosition.removePosition({
+        positionId: this.pendingData.positionId,
       })
     );
 
@@ -88,7 +82,7 @@ export class RemoveDepartmentComponent {
       .subscribe(() => {
         this.showConfirm = false;
         this.pendingData = null;
-        this.router.navigateByUrl('/module/human-resources/departments');
+        this.router.navigateByUrl('/module/human-resources/positions');
       });
   }
 
@@ -96,6 +90,6 @@ export class RemoveDepartmentComponent {
     this.showConfirm = false;
     this.pendingData = null;
 
-    this.router.navigateByUrl('/module/human-resources/departments');
+    this.router.navigateByUrl('/module/human-resources/positions');
   }
 }

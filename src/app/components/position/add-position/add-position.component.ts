@@ -1,0 +1,165 @@
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { IPosition } from '../../../core/interfaces/position.interface';
+import { IField } from '../../../core/interfaces/field.interface';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import {
+  selectPositionError,
+  selectPositionLoading,
+} from '../../../store/positions/position.selector';
+import { ActionPosition } from '../../../store/positions/position.actions';
+import { filter, map, pairwise, take } from 'rxjs';
+import { PanelComponent } from '../../../shared/components/panel/panel.component';
+import { DynamicFormComponent } from '../../../shared/components/dynamic-form/dynamic-form.component';
+import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog/confirm-dialog.component';
+import { selectDepartments } from '../../../store/departments/department.selectors';
+import { ActionDepartment } from '../../../store/departments/department.actions';
+
+@Component({
+  selector: 'app-add-position',
+  standalone: true,
+  imports: [
+    CommonModule,
+    PanelComponent,
+    DynamicFormComponent,
+    ConfirmDialogComponent,
+  ],
+  template: `<button
+      (click)="goBack()"
+      class="flex items-center text-sm text-blue-600 hover:underline mb-4"
+    >
+      ← {{ parentLabel }}
+    </button>
+
+    <app-panel [column]="1">
+      <app-dynamic-form
+        [fields]="accountField"
+        (formSubmit)="submitUserForm($event)"
+        [messageError]="messageError"
+      ></app-dynamic-form>
+    </app-panel>
+
+    <app-confirm-dialog
+      *ngIf="showConfirm"
+      [message]="'Bạn có chắc muốn thêm ' + pendingData?.name + ' không?'"
+      [loading]="(loading$ | async) ?? false"
+      (confirm)="confirmAdd()"
+      (cancel)="cancelAdd()"
+    ></app-confirm-dialog> `,
+})
+export class AddPositionComponent {
+  parentLabel = 'Back';
+  messageError: string = '';
+  showConfirm = false;
+  pendingData: IPosition | null = null;
+
+  loading$;
+  error$;
+  departments$;
+
+  accountField: IField<keyof IPosition>[] = [];
+
+  constructor(
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private store: Store
+  ) {
+    const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
+    this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : 'Back';
+
+    this.loading$ = this.store.select(selectPositionLoading);
+    this.error$ = this.store.select(selectPositionError);
+    this.departments$ = this.store.select(selectDepartments);
+  }
+
+  ngOnInit() {
+    this.store.dispatch(ActionDepartment.loadDepartments());
+    this.departments$.subscribe((data) => {
+      const departmentOptions = [
+        { label: 'Chưa xác định', value: null },
+        ...data.map((d) => ({
+          label: d.name,
+          value: d.departmentId,
+        })),
+      ];
+
+      this.accountField = [
+        { name: 'name', label: 'Name', type: 'text', required: true },
+        { name: 'key', label: 'Key', type: 'text', required: true },
+        {
+          name: 'departmentId',
+          label: 'Department',
+          type: 'select',
+          default: null,
+          options: departmentOptions, // ✅ gán dữ liệu đầy đủ
+        },
+        {
+          name: 'baseSalary',
+          label: 'Base salary',
+          type: 'number',
+        },
+        { name: 'description', label: 'Description', type: 'textarea' },
+      ];
+    });
+  }
+
+  goBack() {
+    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+  }
+
+  submitUserForm(data: IPosition) {
+    try {
+      if (data.key.includes(' ')) {
+        throw new Error('Key must not contain spaces');
+      }
+
+      const departmentId =
+        data.departmentId !== null ? Number(data.departmentId) : null;
+
+      data = { ...data, departmentId: departmentId };
+
+      this.pendingData = data;
+      this.showConfirm = true;
+    } catch (e) {
+      if (e instanceof Error) {
+        this.messageError = e.message;
+      } else {
+        console.error('Error: ', e);
+      }
+    }
+  }
+
+  confirmAdd() {
+    if (!this.pendingData) return;
+
+    this.store.dispatch(
+      ActionPosition.addPosition({ position: this.pendingData })
+    );
+
+    // Đợi kết quả xử lý sau khi dispatch
+    this.loading$
+      .pipe(
+        pairwise(),
+        filter(([prev, curr]) => prev === true && curr === false),
+        take(1)
+      )
+      .subscribe(() => {
+        this.error$.pipe(take(1)).subscribe((error) => {
+          this.showConfirm = false;
+
+          if (error) {
+            this.messageError = error.message;
+          } else {
+            this.pendingData = null;
+            this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+          }
+        });
+      });
+  }
+
+  cancelAdd() {
+    this.showConfirm = false;
+    this.pendingData = null;
+  }
+}

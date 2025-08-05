@@ -21,6 +21,8 @@ import { accountReducer } from './store/accounts/account.reducer';
 import { AccountEffect } from './store/accounts/account.effects';
 import { departmentReducer } from './store/departments/department.reducer';
 import { DepartmentEffect } from './store/departments/department.effects';
+import { positionReducer } from './store/positions/position.reducer';
+import { PositionEffect } from './store/positions/position.effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -31,8 +33,14 @@ export const appConfig: ApplicationConfig = {
       auth: authReducer,
       account: accountReducer,
       department: departmentReducer,
+      position: positionReducer,
     }),
-    provideEffects([AuthEffects, AccountEffect, DepartmentEffect]),
+    provideEffects([
+      AuthEffects,
+      AccountEffect,
+      DepartmentEffect,
+      PositionEffect,
+    ]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
     {
       provide: HTTP_INTERCEPTORS,

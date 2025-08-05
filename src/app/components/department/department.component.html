@@ -1,38 +1,48 @@
-<button
-  *ngIf="isParentRoute()"
-  (click)="goBack()"
-  class="flex items-center text-sm text-blue-600 hover:underline mb-4"
->
-  ← {{ parentLabel }}
-</button>
+<!-- Hiển thị loading -->
+<div *ngIf="loading$ | async" class="flex justify-center items-center h-[80vh]">
+  <span class="loader"></span>
+</div>
 
-<!-- phần button  -->
-<div *ngIf="isParentRoute()" class="flex">
-  <app-crud
-    [selectedItem]="selectDepartmentId"
-    name="department"
-    [prefixRouter]="prefixRouter"
-  />
-
+<!-- Hiển thị nội dung sau khi loading xong -->
+<ng-container *ngIf="!(loading$ | async)">
+  <!-- Nút quay lại -->
   <button
-    class="border-teal-700 text-teal-700 border text-sm font-medium rounded-md ms-2 shadow mb-4 px-4 hover:bg-teal-50"
-    (click)="exportCSV()"
+    *ngIf="isParentRoute()"
+    (click)="goBack()"
+    class="flex items-center text-sm text-blue-600 hover:underline mb-4"
   >
-    Xuất CSV
+    ← {{ parentLabel }}
   </button>
-</div>
 
-<!-- // phần table -->
-<div *ngIf="isParentRoute()">
-  <ag-grid-angular
-    class="ag-theme-alpine w-full h-full"
-    [gridOptions]="gridOptions"
-    [columnDefs]="columnDefs"
-    [animateRows]="true"
-    [rowData]="rowData"
-    (gridReady)="onGridReady($event)"
-    (rowClicked)="onRowClicked($event)"
-  ></ag-grid-angular>
-</div>
+  <!-- Phần button -->
+  <div *ngIf="isParentRoute()" class="flex">
+    <app-crud
+      [selectedItem]="selectDepartmentId"
+      name="department"
+      [prefixRouter]="prefixRouter"
+    />
 
-<router-outlet />
+    <button
+      class="border-teal-700 text-teal-700 border text-sm font-medium rounded-md ms-2 shadow mb-4 px-4 hover:bg-teal-50"
+      (click)="exportCSV()"
+    >
+      Xuất CSV
+    </button>
+  </div>
+
+  <!-- Phần table -->
+  <div *ngIf="isParentRoute()">
+    <ag-grid-angular
+      class="ag-theme-alpine w-full h-full"
+      [gridOptions]="gridOptions"
+      [columnDefs]="columnDefs"
+      [animateRows]="true"
+      [rowData]="rowData"
+      (gridReady)="onGridReady($event)"
+      (rowClicked)="onRowClicked($event)"
+    ></ag-grid-angular>
+  </div>
+
+  <!-- Router outlet -->
+  <router-outlet></router-outlet>
+</ng-container>

@@ -8,16 +8,15 @@ import {
   GridApi,
   GridOptions,
   GridReadyEvent,
+  ICellRendererParams,
   RowClickedEvent,
 } from 'ag-grid-community';
-
-interface IPositionTable {
-  name: string;
-  description: string;
-  baseSalary: string;
-  createAt: Date;
-  updateAt: Date;
-}
+import { Store } from '@ngrx/store';
+import { ActionPosition } from '../../store/positions/position.actions';
+import { ILoadPosition } from '../../core/interfaces/position.interface';
+import { selectPositions } from '../../store/positions/position.selector';
+import { DatetimeUtils } from '../../core/utils/datetime.utils';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-account',
@@ -31,7 +30,9 @@ export class PositionComponent {
   gridApi!: GridApi;
   prefixRouter: string;
 
-  rowData: IPositionTable[] = [];
+  rowData: ILoadPosition[] = [];
+
+  positions$: Observable<ILoadPosition[]>;
 
   // Cấu hình chung của AG Grid
   gridOptions: GridOptions = {
@@ -44,47 +45,72 @@ export class PositionComponent {
     domLayout: 'autoHeight',
   };
 
-  columnDefs: ColDef<IPositionTable>[] = [
+  columnDefs: ColDef<ILoadPosition>[] = [
     {
       field: 'name',
+      headerName: 'Position',
+      sortable: true,
+      filter: true,
+      minWidth: 140,
+    },
+    {
+      field: 'key',
+      headerName: 'Code',
+      sortable: true,
+      filter: true,
+      minWidth: 140,
+    },
+    {
+      field: 'departmentName',
+      headerName: 'Department',
       sortable: true,
       filter: true,
       minWidth: 140,
     },
     {
       field: 'description',
+      headerName: 'Description',
       sortable: true,
-      filter: true,
       minWidth: 140,
     },
     {
       field: 'baseSalary',
-      headerName: 'base salary',
+      headerName: 'Base salary',
       sortable: true,
-      filter: true,
       minWidth: 140,
     },
     {
       field: 'createAt',
-      headerName: 'create date',
+      headerName: 'Create date',
       sortable: true,
-      filter: true,
       minWidth: 140,
     },
     {
       field: 'updateAt',
-      headerName: 'update date',
+      headerName: 'Update date',
       sortable: true,
-      filter: true,
       minWidth: 140,
     },
   ];
 
-  constructor(private router: Router, private activatedRoute: ActivatedRoute) {
+  constructor(
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private store: Store
+  ) {
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
     this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : 'Back';
 
     this.prefixRouter = this.router.url;
+
+    this.positions$ = this.store.select(selectPositions);
+  }
+
+  ngOnInit() {
+    this.loadData();
+
+    // Lắng nghe sự kiện khi người dùng click bên ngoài table
+    document.addEventListener('click', this.onDocumentClick);
   }
 
   isParentRoute(): boolean {
@@ -102,9 +128,41 @@ export class PositionComponent {
   }
 
   onRowClicked(event: RowClickedEvent) {
-    const accountId = event.data.accountId;
-    this.selectPositionId = { id: accountId };
+    const positionId = event.data.positionId;
+    this.selectPositionId = { id: positionId };
+  }
+
+  loadData() {
+    this.store.dispatch(ActionPosition.loadPositions());
+
+    this.positions$.subscribe((positions: ILoadPosition[]) => {
+      this.rowData = positions.map((position) => {
+        return {
+          positionId: position.positionId,
+          name: position.name,
+          key: position.key,
+          departmentName: position.departmentName,
+          baseSalary: position.baseSalary,
+          description: position.description,
+          updateAt: DatetimeUtils.toLocaleDateString(position.updateAt),
+          createAt: DatetimeUtils.toLocaleDateString(position.createAt),
+        };
+      });
+    });
   }
 
   exportCSV() {}
+
+  onDocumentClick = (event: MouseEvent) => {
+    const gridElement = document.querySelector('ag-grid-angular');
+    if (gridElement && !gridElement.contains(event.target as Node)) {
+      this.gridApi?.deselectAll();
+      this.selectPositionId = null; // reset khi click ra ngoài
+    }
+  };
+
+  ngOnDestroy() {
+    // Remove listener để tránh memory leak
+    document.removeEventListener('click', this.onDocumentClick);
+  }
 }

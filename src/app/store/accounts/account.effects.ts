@@ -129,20 +129,20 @@ export class AccountEffect {
   configRemoveAccount() {
     return this.actions$.pipe(
       ofType(AccountAction.removeAccount),
-      exhaustMap(({ accountId }) => {
-        this.accountService.removeAccount(accountId).subscribe();
-
-        // If you have an API call, replace the following line with the API call Observable
-        return of(AccountAction.removeAccountSuccess({ accountId: accountId }));
-      }),
-      catchError((error) =>
-        of(
-          AccountAction.removeAccountFailure({
-            error: {
-              message:
-                error?.error?.message || 'Lỗi không xác định khi tạo tài khoản',
-            },
-          })
+      exhaustMap(({ accountId }) =>
+        this.accountService.removeAccount(accountId).pipe(
+          map(() => AccountAction.removeAccountSuccess({ accountId })),
+          catchError((error) =>
+            of(
+              AccountAction.removeAccountFailure({
+                error: {
+                  message:
+                    error?.error?.message ||
+                    'Lỗi không xác định khi xoá tài khoản',
+                },
+              })
+            )
+          )
         )
       )
     );

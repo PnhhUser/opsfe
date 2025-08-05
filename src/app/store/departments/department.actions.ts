@@ -20,44 +20,48 @@ const loadDepartmentsFailure = createAction(
 );
 
 // Add
-const AddDeparment = createAction(
+const addDeparment = createAction(
   '[Department] Add Department',
   props<{ department: IDepartment }>()
 );
 
-const AddDepartmentSuccess = createAction(
+const addDepartmentSuccess = createAction(
   '[Department] Add Department Success',
   props<{ department: IloadDepartment }>()
 );
 
-const AddDepartmentFailure = createAction(
+const addDepartmentFailure = createAction(
   '[Department] Add Department Failure',
   props<{ error: IError }>()
 );
 
 // edit
-const EditDepartment = createAction(
+const editDepartment = createAction(
   '[Department] Edit Department',
-  props<{ department: IUpdateDepertment }>
+  props<{ department: IUpdateDepertment }>()
 );
 
-const EditDepartmentSuccess = createAction(
+const editDepartmentSuccess = createAction(
   '[Department] Edit Department Success',
   props<{ department: IloadDepartment }>()
 );
 
-const EditDepartmentFailure = createAction(
+const editDepartmentFailure = createAction(
   '[Department] Edit Department Failure',
   props<{ error: IError }>()
 );
 
-const RemoveDepartment = createAction('[Department] Remove Department');
-
-const RemoveDepartmentSuccess = createAction(
-  '[Department] Remove Department Success'
+const removeDepartment = createAction(
+  '[Department] Remove Department',
+  props<{ departmentId: number }>()
 );
 
-const RemoveDepartmentFailure = createAction(
+const removeDepartmentSuccess = createAction(
+  '[Department] Remove Department Success',
+  props<{ departmentId: number }>()
+);
+
+const removeDepartmentFailure = createAction(
   '[Department] Remove Department Failure',
   props<{ error: IError }>()
 );
@@ -67,15 +71,15 @@ export const ActionDepartment = {
   loadDepartmentsSuccess,
   loadDepartmentsFailure,
 
-  AddDeparment,
-  AddDepartmentSuccess,
-  AddDepartmentFailure,
+  addDeparment,
+  addDepartmentSuccess,
+  addDepartmentFailure,
 
-  EditDepartment,
-  EditDepartmentSuccess,
-  EditDepartmentFailure,
+  editDepartment,
+  editDepartmentSuccess,
+  editDepartmentFailure,
 
-  RemoveDepartment,
-  RemoveDepartmentSuccess,
-  RemoveDepartmentFailure,
+  removeDepartment,
+  removeDepartmentSuccess,
+  removeDepartmentFailure,
 };

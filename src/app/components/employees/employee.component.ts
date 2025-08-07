@@ -4,115 +4,167 @@ import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import {
   ColDef,
   GridApi,
-  GridOptions,
   GridReadyEvent,
+  ICellRendererParams,
   RowClickedEvent,
 } from 'ag-grid-community';
 import { CRUDComponent } from '../../shared/components/crud/crud.component';
-import { AgGridModule } from 'ag-grid-angular';
-
-interface IEmployeeTable {
-  employeeId: number;
-  fullname: string;
-  email: string;
-  phoneNumber: string;
-  address: string;
-  gender: string;
-  dateOfBirth: Date;
-  startDate: Date;
-  position: string;
-  department: string;
-  isActive: boolean;
-  createAt: Date;
-  updateAt: Date;
-}
+import { TableComponent } from '../../shared/components/table/table.component';
+import { LoadingComponent } from '../../shared/components/loading/loading.component';
+import { ILoadEmployee } from '../../core/interfaces/employee.interface';
+import { Store } from '@ngrx/store';
+import {
+  selectEmpLoading,
+  selectEmps,
+} from '../../store/employees/employee.selectors';
+import { ActionEmployee } from '../../store/employees/employee.actions';
+import { filter, take } from 'rxjs';
 
 @Component({
   selector: 'app-employee',
   standalone: true,
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    CRUDComponent,
+    TableComponent,
+    LoadingComponent,
+  ],
   templateUrl: './employee.component.html',
-  imports: [CommonModule, AgGridModule, RouterOutlet, CRUDComponent],
 })
 export class EmployeeComponent {
   parentLabel = 'Back';
-  selectEmpId: { id: number } | null = null;
+  selectEmpItem: { id: number } | null = null;
   gridApi!: GridApi;
   prefixRouter: string;
-
-  rowData: IEmployeeTable[] = [];
-
-  // Cấu hình chung của AG Grid
-  gridOptions: GridOptions = {
-    rowSelection: 'single',
-    pagination: true,
-    paginationPageSize: 10,
-    paginationPageSizeSelector: [5, 10, 20, 50, 100],
-    rowHeight: 50,
-    headerHeight: 46,
-    domLayout: 'autoHeight',
-  };
-
-  columnDefs: ColDef<IEmployeeTable>[] = [
+  loading$;
+  emps$;
+  employees: ILoadEmployee[] = [];
+  columnDefs: ColDef<ILoadEmployee>[] = [
     {
-      field: 'fullname',
+      field: 'fullName',
       headerName: 'full name',
       sortable: true,
       filter: true,
-      minWidth: 140,
+      minWidth: 280,
     },
-    { field: 'email', sortable: true, filter: true, minWidth: 140 },
-    {
-      field: 'phoneNumber',
-      headerName: 'phone number',
-      sortable: true,
-      filter: true,
-      minWidth: 140,
-    },
-    { field: 'address', sortable: true, filter: true, minWidth: 140 },
-    {
-      field: 'dateOfBirth',
-      headerName: 'date of birth',
-      sortable: true,
-      filter: true,
-      minWidth: 140,
-    },
-    {
-      field: 'startDate',
-      headerName: 'start date',
-      sortable: true,
-      filter: true,
-      minWidth: 140,
-    },
-    { field: 'position', sortable: true, filter: true, minWidth: 140 },
-    { field: 'department', sortable: true, filter: true, minWidth: 140 },
+    { field: 'email', sortable: true, filter: true, minWidth: 280 },
     {
       field: 'isActive',
       headerName: 'active',
+      cellRenderer: (params: ICellRendererParams) => {
+        const isActive = params.value;
+        const label = isActive ? 'Active' : 'Inactive';
+        const badgeClass = isActive
+          ? 'bg-green-50 text-green-700 ring-green-700/10'
+          : 'bg-red-50 text-red-700 ring-red-700/10';
+
+        return `
+      <span class="inline-flex justify-center rounded-md  px-2 py-1 text-xs font-medium  ring-1 ${badgeClass} ring-inset min-w-[70px]">
+        ${label}
+      </span>
+    `;
+      },
       sortable: true,
-      filter: true,
-      minWidth: 140,
+      minWidth: 100,
     },
     {
-      field: 'createAt',
-      headerName: 'create date',
+      field: 'positionName',
+      headerName: 'Position',
+      cellRenderer: (params: ICellRendererParams) => {
+        const value = params.value;
+
+        if (!value) {
+          return `
+      <span class="inline-flex justify-center rounded-md px-2 py-1 text-xs font-medium ring-1 bg-red-50 text-red-700 ring-red-700/10 ring-inset min-w-[90px]">
+        Not Assigned
+      </span>
+    `;
+        }
+
+        return value;
+      },
       sortable: true,
       filter: true,
-      minWidth: 140,
+      minWidth: 230,
     },
     {
-      field: 'updateAt',
-      headerName: 'update date',
+      field: 'departmentName',
+      headerName: 'Department',
+      cellRenderer: (params: ICellRendererParams) => {
+        const value = params.value;
+
+        if (!value) {
+          return `
+      <span class="inline-flex justify-center rounded-md px-2 py-1 text-xs font-medium ring-1 bg-red-50 text-red-700 ring-red-700/10 ring-inset min-w-[90px]">
+        Not Assigned
+      </span>
+    `;
+        }
+
+        return value;
+      },
       sortable: true,
       filter: true,
-      minWidth: 140,
+      minWidth: 230,
+    },
+    {
+      field: 'accountName',
+      headerName: 'Account',
+      cellRenderer: (params: ICellRendererParams) => {
+        const value = params.value;
+
+        if (!value) {
+          return `
+      <span class="inline-flex justify-center rounded-md px-2 py-1 text-xs font-medium ring-1 bg-red-50 text-red-700 ring-red-700/10 ring-inset min-w-[90px]">
+        Not Assigned
+      </span>
+    `;
+        }
+
+        return value;
+      },
+      sortable: true,
+      filter: true,
+      minWidth: 230,
     },
   ];
 
-  constructor(private router: Router, private activatedRoute: ActivatedRoute) {
+  constructor(
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private store: Store
+  ) {
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
-    this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : 'Back';
+    this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : this.parentLabel;
 
     this.prefixRouter = this.router.url;
+
+    this.loading$ = this.store.select(selectEmpLoading);
+    this.emps$ = this.store.select(selectEmps);
+  }
+
+  ngOnInit() {
+    this.store.dispatch(ActionEmployee.loadEmployees());
+
+    this.emps$.subscribe((res: ILoadEmployee[]) => {
+      this.employees = res.map((emp) => ({
+        employeeId: emp.employeeId,
+        fullName: emp.fullName,
+        email: emp.email,
+        address: emp.address,
+        phoneNumber: emp.phoneNumber,
+        createAt: emp.createAt,
+        updateAt: emp.updateAt,
+        dateOfBirth: emp.dateOfBirth,
+        startDate: emp.startDate,
+        accountName: emp.accountName,
+        positionName: emp.positionName,
+        isActive: emp.isActive,
+        gender: emp.gender,
+        departmentName: emp.departmentName,
+      }));
+    });
   }
 
   isParentRoute(): boolean {
@@ -124,14 +176,17 @@ export class EmployeeComponent {
     this.router.navigate(['../'], { relativeTo: this.activatedRoute });
   }
 
-  onGridReady(event: GridReadyEvent) {
-    this.gridApi = event.api;
-    event.api.sizeColumnsToFit();
-  }
-
   onRowClicked(event: RowClickedEvent) {
     const accountId = event.data.accountId;
-    this.selectEmpId = { id: accountId };
+    this.selectEmpItem = { id: accountId };
+  }
+
+  onRowSelect(event: { id: number } | null) {
+    this.selectEmpItem = event === null ? null : { id: event.id };
+  }
+
+  onGirdEvent(gird: { event: GridReadyEvent }) {
+    this.gridApi = gird.event.api;
   }
 
   exportCSV() {}

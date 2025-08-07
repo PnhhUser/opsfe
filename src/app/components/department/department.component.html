@@ -1,6 +1,6 @@
 <!-- Hiển thị loading -->
 <div *ngIf="loading$ | async" class="flex justify-center items-center h-[80vh]">
-  <span class="loader"></span>
+  <app-loading />
 </div>
 
 <!-- Hiển thị nội dung sau khi loading xong -->
@@ -17,7 +17,7 @@
   <!-- Phần button -->
   <div *ngIf="isParentRoute()" class="flex">
     <app-crud
-      [selectedItem]="selectDepartmentId"
+      [selectedItem]="selectDepartmentItem"
       name="department"
       [prefixRouter]="prefixRouter"
     />
@@ -32,15 +32,13 @@
 
   <!-- Phần table -->
   <div *ngIf="isParentRoute()">
-    <ag-grid-angular
-      class="ag-theme-alpine w-full h-full"
-      [gridOptions]="gridOptions"
-      [columnDefs]="columnDefs"
-      [animateRows]="true"
-      [rowData]="rowData"
-      (gridReady)="onGridReady($event)"
-      (rowClicked)="onRowClicked($event)"
-    ></ag-grid-angular>
+    <app-table
+      [columnField]="columnDefs"
+      [data]="departments"
+      itemId="departmentId"
+      (rowSelected)="onRowSelect($event)"
+      (girdEvent)="onGirdEvent($event)"
+    ></app-table>
   </div>
 
   <!-- Router outlet -->

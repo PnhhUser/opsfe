@@ -12,7 +12,7 @@ import {
   selectDepartmentLoading,
 } from '../../../store/departments/department.selectors';
 import { ActionDepartment } from '../../../store/departments/department.actions';
-import { combineLatest, filter, pairwise, startWith, take } from 'rxjs';
+import { filter, pairwise, take } from 'rxjs';
 
 @Component({
   selector: 'app-add-department',
@@ -34,7 +34,7 @@ import { combineLatest, filter, pairwise, startWith, take } from 'rxjs';
       <app-dynamic-form
         [fields]="accountField"
         (formSubmit)="submitUserForm($event)"
-        [messageError]="messageError"
+        [messageError]="(error$ | async)?.message ?? messageError"
       ></app-dynamic-form>
     </app-panel>
 
@@ -111,10 +111,7 @@ export class AddDepartmentComponent {
       .subscribe(() => {
         this.error$.pipe(take(1)).subscribe((error) => {
           this.showConfirm = false;
-
-          if (error) {
-            this.messageError = error.message;
-          } else {
+          if (!error) {
             this.pendingData = null;
             this.router.navigate(['../'], { relativeTo: this.activatedRoute });
           }

@@ -6,7 +6,6 @@ import { Component, Input } from '@angular/core';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './panel.component.html',
-  styleUrl: './panel.component.css',
 })
 export class PanelComponent {
   @Input() column: number = 2;

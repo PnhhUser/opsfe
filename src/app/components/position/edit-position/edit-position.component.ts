@@ -46,7 +46,7 @@ import { ActionPosition } from '../../../store/positions/position.actions';
         [fields]="accountField"
         [initialValue]="initialValue"
         (formSubmit)="submitForm($event)"
-        [messageError]="messageError"
+        [messageError]="(error$ | async)?.message ?? messageError"
       ></app-dynamic-form>
     </app-panel>
 
@@ -66,7 +66,29 @@ export class EditPositionComponent {
 
   initialValue: Partial<IUpdatePosition> = {};
 
-  accountField: IField<keyof IUpdatePosition>[] = [];
+  accountField: IField<keyof IUpdatePosition>[] = [
+    { name: 'name', label: 'Name', type: 'text', required: true },
+    { name: 'key', label: 'Key', type: 'text', required: true },
+    {
+      name: 'departmentId',
+      label: 'Department',
+      type: 'select',
+      default: null,
+      options: [
+        {
+          label: 'Chưa xác định',
+          value: null,
+        },
+      ],
+    },
+    {
+      name: 'baseSalary',
+      label: 'Base salary',
+      type: 'number',
+    },
+    { name: 'description', label: 'Description', type: 'textarea' },
+    { name: 'positionId', label: '', type: 'hidden' },
+  ];
 
   loading$;
   error$;
@@ -87,77 +109,65 @@ export class EditPositionComponent {
   }
 
   ngOnInit() {
-    this.store.dispatch(ActionDepartment.loadDepartments());
-
     const positionId = this.activatedRoute.snapshot.params?.['positionId'];
 
     if (!positionId) {
-      this.messageError = 'Không tìm thấy ID phòng ban.';
+      this.messageError = 'Không tìm thấy ID vị trí.';
       return;
     }
 
     const id = Number.parseInt(positionId);
+
     if (isNaN(id)) {
-      this.messageError = 'ID phòng ban không hợp lệ.';
+      this.messageError = 'ID vị trí không hợp lệ.';
       return;
     }
 
+    this.store.dispatch(ActionDepartment.loadDepartments());
+
+    // Lấy dữ liệu position
     this.store
       .select(selectPositions)
       .pipe(
-        map((d) => d.find((v) => v.positionId === id)),
-        take(1) // ✅ Chỉ lấy 1 lần
+        map((positions) => positions.find((v) => v.positionId === id)),
+        take(1)
       )
-      .subscribe((p) => {
-        if (!p) return;
+      .subscribe((data) => {
+        if (!data) return;
 
-        this.departments$
-          .pipe(take(1)) // ✅ Tránh nested subscribe lâu dài
+        // Chờ load departments
+        this.store
+          .select(selectDepartments)
+          .pipe(
+            filter((departments) => departments.length > 0),
+            take(1)
+          )
           .subscribe((departments) => {
-            const departmentOptions = [
-              { label: 'Chưa xác định', value: null },
-              ...departments.map((d) => ({
-                label: d.name,
-                value: d.departmentId,
-              })),
-            ];
+            const matched = departments.find(
+              (d) => d.name === data.departmentName
+            );
 
-            const optionDefault = departments
-              .filter((v) => v.name === p.departmentName)
-              .map((d) => ({
-                label: d.name,
-                value: d.departmentId,
-              }))
-              .find((r) => r);
+            const departmentId = matched?.departmentId ?? null;
 
-            // ✅ Gán giá trị ban đầu
+            // Gán dữ liệu ban đầu vào form
             this.initialValue = {
-              name: p.name,
-              key: p.key,
-              positionId: p.positionId,
-              departmentId: optionDefault?.value ?? null,
-              description: p.description,
-              baseSalary: p.baseSalary,
+              ...data,
+              departmentId: departmentId, // <-- gán thẳng luôn
             };
 
-            this.accountField = [
-              { name: 'name', label: 'Name', type: 'text', required: true },
-              { name: 'key', label: 'Key', type: 'text', required: true },
-              {
-                name: 'departmentId',
-                label: 'Department',
-                type: 'select',
-                default: optionDefault?.value ?? null,
-                options: departmentOptions,
-              },
-              {
-                name: 'baseSalary',
-                label: 'Base salary',
-                type: 'number',
-              },
-              { name: 'description', label: 'Description', type: 'textarea' },
-              { name: 'positionId', label: '', type: 'hidden' },
-            ];
+            // Gán options cho select
+            const field = this.accountField.find(
+              (f) => f.name === 'departmentId'
+            );
+            if (field) {
+              field.options = [
+                { label: 'Chưa xác định', value: null },
+                ...departments.map((d) => ({
+                  label: d.name,
+                  value: d.departmentId,
+                })),
+              ];
+            }
           });
       });
   }
@@ -208,10 +218,7 @@ export class EditPositionComponent {
       .subscribe(() => {
         this.error$.pipe(take(1)).subscribe((error) => {
           this.showConfirm = false;
-
-          if (error) {
-            this.messageError = error.message;
-          } else {
+          if (!error) {
             this.pendingData = null;
             this.router.navigateByUrl('/module/human-resources/positions');
           }

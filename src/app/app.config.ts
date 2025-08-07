@@ -23,6 +23,8 @@ import { departmentReducer } from './store/departments/department.reducer';
 import { DepartmentEffect } from './store/departments/department.effects';
 import { positionReducer } from './store/positions/position.reducer';
 import { PositionEffect } from './store/positions/position.effects';
+import { employeeReducer } from './store/employees/employee.reducer';
+import { EmployeeEffect } from './store/employees/employee.effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -34,12 +36,14 @@ export const appConfig: ApplicationConfig = {
       account: accountReducer,
       department: departmentReducer,
       position: positionReducer,
+      employee: employeeReducer,
     }),
     provideEffects([
       AuthEffects,
       AccountEffect,
       DepartmentEffect,
       PositionEffect,
+      EmployeeEffect,
     ]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
     {

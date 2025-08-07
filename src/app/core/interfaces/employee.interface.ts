@@ -1,8 +1,9 @@
 import { Gender } from '../enum/gender.enum';
+import { IError } from './error.interface';
 
 export interface ILoadEmployee {
   employeeId: number;
-  fullname: string;
+  fullName: string;
   email: string;
   phoneNumber: string | null;
   address: string | null;
@@ -18,7 +19,7 @@ export interface ILoadEmployee {
 }
 
 export interface IEmployee {
-  fullname: string;
+  fullName: string;
   email: string;
   phoneNumber: string | null;
   address: string | null;
@@ -26,11 +27,16 @@ export interface IEmployee {
   dateOfBirth: Date | null;
   startDate: Date | null;
   isActive: boolean;
-  positionName: string;
-  accountName: string;
-  departmentName: string;
+  positionId: number | null;
+  accountId: number | null;
 }
 
 export interface IUpdateEmployee extends IEmployee {
   employeeId: number;
+}
+
+export interface IEmployeeState {
+  employees: ILoadEmployee[];
+  loading: boolean;
+  error: IError | null;
 }

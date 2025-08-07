@@ -1,17 +1,19 @@
 import { Store } from '@ngrx/store';
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { DynamicFormComponent } from '../../../shared/components/dynamic-form/dynamic-form.component';
 import { IField } from '../../../core/interfaces/field.interface';
 import { PanelComponent } from '../../../shared/components/panel/panel.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AccountService } from '../../../core/services/account.service';
 import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog/confirm-dialog.component';
 import { RoleEnum } from '../../../core/enum/role.enum';
 import { IAccount } from '../../../core/interfaces/account.interface';
 import * as AccountActions from '../../../store/accounts/account.actions';
-import * as AccountSelectors from '../../../store/accounts/account.selectors';
-import { pairwise, startWith, Subscription, take } from 'rxjs';
+import { filter, pairwise, take } from 'rxjs';
+import {
+  selectAccountError,
+  selectAccountsLoading,
+} from '../../../store/accounts/account.selectors';
 
 @Component({
   standalone: true,
@@ -24,16 +26,11 @@ import { pairwise, startWith, Subscription, take } from 'rxjs';
     ConfirmDialogComponent,
   ],
 })
-export class AddAccountComponent implements OnInit, OnDestroy {
+export class AddAccountComponent {
   parentLabel = 'Back';
   messageError: string = '';
   showConfirm = false;
-  isLoading = false;
   pendingData: IAccount | null = null;
-  hasDispatched = false;
-
-  private subscriptions = new Subscription();
-
   accountField: IField<keyof IAccount>[] = [
     { name: 'username', label: 'Username', type: 'text', required: true },
     { name: 'password', label: 'Password', type: 'password', required: true },
@@ -55,48 +52,20 @@ export class AddAccountComponent implements OnInit, OnDestroy {
     },
   ];
 
+  loading$;
+  error$;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private accountService: AccountService,
     private store: Store
   ) {
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
     this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : 'Back';
-  }
 
-  ngOnInit() {
-    const loadingSub = this.store
-      .select(AccountSelectors.selectLoading)
-      .pipe(startWith(false), pairwise())
-      .subscribe(([prev, curr]) => {
-        if (!this.hasDispatched) return;
+    this.loading$ = this.store.select(selectAccountsLoading);
 
-        if (prev === true && curr === false) {
-          // Khi xử lý xong, kiểm tra error sau
-          this.store
-            .select(AccountSelectors.selectError)
-            .pipe(take(1))
-            .subscribe((error) => {
-              if (error) {
-                this.messageError = error.message;
-                this.isLoading = false;
-                this.showConfirm = false;
-              } else {
-                setTimeout(() => {
-                  this.isLoading = false;
-                  this.showConfirm = false;
-                  this.pendingData = null;
-                  this.router.navigate(['../'], {
-                    relativeTo: this.activatedRoute,
-                  });
-                }, 2000);
-              }
-            });
-        }
-      });
-
-    this.subscriptions.add(loadingSub);
+    this.error$ = this.store.select(selectAccountError);
   }
 
   goBack() {
@@ -113,6 +82,9 @@ export class AddAccountComponent implements OnInit, OnDestroy {
         throw new Error('Password must be at least 6 characters');
       }
 
+      const roleId = Number(data.roleId);
+      data = { ...data, roleId };
+
       this.pendingData = data;
       this.showConfirm = true;
     } catch (e) {
@@ -126,20 +98,32 @@ export class AddAccountComponent implements OnInit, OnDestroy {
 
   confirmAdd() {
     if (!this.pendingData) return;
-    this.hasDispatched = true;
-    this.isLoading = true;
+
     this.store.dispatch(
       AccountActions.addAccount({ account: this.pendingData })
     );
+
+    // Đợi kết quả xử lý sau khi dispatch
+    this.loading$
+      .pipe(
+        pairwise(),
+        filter(([prev, curr]) => prev === true && curr === false),
+        take(1)
+      )
+      .subscribe(() => {
+        this.error$.pipe(take(1)).subscribe((error) => {
+          this.showConfirm = false;
+
+          if (!error) {
+            this.pendingData = null;
+            this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+          }
+        });
+      });
   }
 
   cancelAdd() {
     this.showConfirm = false;
-    this.isLoading = false;
     this.pendingData = null;
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
   }
 }

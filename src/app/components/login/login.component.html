@@ -3,7 +3,7 @@
   class="min-h-screen flex items-center justify-center bg-gray-50"
   *ngIf="(loading$ | async) === true"
 >
-  <span class="loader"></span>
+  <app-loading />
 </div>
 
 <!-- Hiển thị form khi loading xong -->

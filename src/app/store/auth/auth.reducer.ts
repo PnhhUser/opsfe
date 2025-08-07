@@ -31,13 +31,12 @@ export const authReducer = createReducer(
   // Logout
   on(AuthActions.logout, (state) => ({
     ...state,
-    loading: false,
+    loading: true,
     error: null,
   })),
-  on(AuthActions.logoutSuccess, (state) => ({
-    ...initialState,
+  on(AuthActions.logoutSuccess, () => ({
+    ...initialState, // reset hết
   })),
-
   on(AuthActions.logoutFailure, (state, { error }) => ({
     ...state,
     loading: false,

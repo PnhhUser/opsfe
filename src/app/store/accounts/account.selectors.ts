@@ -10,11 +10,11 @@ export const selectAccounts = createSelector(
   (state) => state.accounts
 );
 
-export const selectLoading = createSelector(
+export const selectAccountsLoading = createSelector(
   selectAccountState,
   (state) => state.loading
 );
-export const selectError = createSelector(
+export const selectAccountError = createSelector(
   selectAccountState,
   (state) => state.error
 );

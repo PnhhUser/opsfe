@@ -26,7 +26,7 @@ export class DepartmentEffect {
       ofType(ActionDepartment.loadDepartments),
       mergeMap(() => {
         return this.departmentService.getDepartments().pipe(
-          delay(1500),
+          delay(500),
           map((response) => {
             return ActionDepartment.loadDepartmentsSuccess({
               departments: response.data,

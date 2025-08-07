@@ -1,4 +1,4 @@
-function toLocaleDateString(datetime: string) {
+function toLocaleDatetimeString(datetime: string) {
   return new Date(datetime).toLocaleDateString('vi-VN', {
     year: 'numeric',
     month: '2-digit',
@@ -9,6 +9,15 @@ function toLocaleDateString(datetime: string) {
   });
 }
 
+function toLocaleDateString(datetime: string) {
+  return new Date(datetime).toLocaleDateString('vi-VN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+}
+
 export const DatetimeUtils = {
   toLocaleDateString,
+  toLocaleDatetimeString,
 };

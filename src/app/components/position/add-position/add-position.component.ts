@@ -36,7 +36,7 @@ import { ActionDepartment } from '../../../store/departments/department.actions'
       <app-dynamic-form
         [fields]="accountField"
         (formSubmit)="submitUserForm($event)"
-        [messageError]="messageError"
+        [messageError]="(error$ | async)?.message ?? messageError"
       ></app-dynamic-form>
     </app-panel>
 
@@ -58,7 +58,23 @@ export class AddPositionComponent {
   error$;
   departments$;
 
-  accountField: IField<keyof IPosition>[] = [];
+  accountField: IField<keyof IPosition>[] = [
+    { name: 'name', label: 'Name', type: 'text', required: true },
+    { name: 'key', label: 'Key', type: 'text', required: true },
+    {
+      name: 'departmentId',
+      label: 'Department',
+      type: 'select',
+      default: null,
+      options: [{ label: 'Chưa xác định', value: null }],
+    },
+    {
+      name: 'baseSalary',
+      label: 'Base salary',
+      type: 'number',
+    },
+    { name: 'description', label: 'Description', type: 'textarea' },
+  ];
 
   constructor(
     private router: Router,
@@ -75,33 +91,26 @@ export class AddPositionComponent {
 
   ngOnInit() {
     this.store.dispatch(ActionDepartment.loadDepartments());
-    this.departments$.subscribe((data) => {
-      const departmentOptions = [
-        { label: 'Chưa xác định', value: null },
-        ...data.map((d) => ({
-          label: d.name,
-          value: d.departmentId,
-        })),
-      ];
 
-      this.accountField = [
-        { name: 'name', label: 'Name', type: 'text', required: true },
-        { name: 'key', label: 'Key', type: 'text', required: true },
-        {
-          name: 'departmentId',
-          label: 'Department',
-          type: 'select',
-          default: null,
-          options: departmentOptions, // ✅ gán dữ liệu đầy đủ
-        },
-        {
-          name: 'baseSalary',
-          label: 'Base salary',
-          type: 'number',
-        },
-        { name: 'description', label: 'Description', type: 'textarea' },
-      ];
-    });
+    this.departments$
+      .pipe(
+        filter((data) => data.length > 0),
+        take(1)
+      )
+      .subscribe((data) => {
+        const departmentOptions = [
+          { label: 'Chưa xác định', value: null },
+          ...data.map((d) => ({
+            label: d.name,
+            value: d.departmentId,
+          })),
+        ];
+
+        const field = this.accountField.find((f) => f.name === 'departmentId');
+        if (field) {
+          field.options = departmentOptions;
+        }
+      });
   }
 
   goBack() {
@@ -147,10 +156,7 @@ export class AddPositionComponent {
       .subscribe(() => {
         this.error$.pipe(take(1)).subscribe((error) => {
           this.showConfirm = false;
-
-          if (error) {
-            this.messageError = error.message;
-          } else {
+          if (!error) {
             this.pendingData = null;
             this.router.navigate(['../'], { relativeTo: this.activatedRoute });
           }

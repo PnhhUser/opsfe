@@ -1,20 +1,20 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AccountService } from '../../../core/services/account.service';
 import { PanelComponent } from '../../../shared/components/panel/panel.component';
 import { DynamicFormComponent } from '../../../shared/components/dynamic-form/dynamic-form.component';
+import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog/confirm-dialog.component';
+import { IUpdateAccount } from '../../../core/interfaces/account.interface';
 import { IField } from '../../../core/interfaces/field.interface';
 import { RoleEnum } from '../../../core/enum/role.enum';
-import { IUpdateAccount } from '../../../core/interfaces/account.interface';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AccountService } from '../../../core/services/account.service';
 import { Store } from '@ngrx/store';
-import * as AccountActions from '../../../store/accounts/account.actions';
-import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog/confirm-dialog.component';
 import {
-  selectError,
-  selectLoading,
+  selectAccountError,
+  selectAccountsLoading,
 } from '../../../store/accounts/account.selectors';
-import { pairwise, startWith, Subscription, take } from 'rxjs';
+import { filter, pairwise, startWith, take } from 'rxjs';
+import { editAccount } from '../../../store/accounts/account.actions';
 
 @Component({
   selector: 'app-edit-account',
@@ -32,15 +32,11 @@ export class EditAccountComponent {
   messageError: string = '';
   initialValue: Partial<IUpdateAccount> = {};
 
-  loadingState$;
-  errorState$;
+  loading$;
+  error$;
 
   showConfirm = false;
-  isLoading = false;
   pendingData: IUpdateAccount | null = null;
-  hasDispatched = false;
-
-  private subscriptions = new Subscription();
 
   accountField: IField<keyof IUpdateAccount>[] = [
     {
@@ -85,10 +81,8 @@ export class EditAccountComponent {
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
     this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : 'Back';
 
-    this.loadingState$ = this.store
-      .select(selectLoading)
-      .pipe(startWith(false), pairwise());
-    this.errorState$ = this.store.select(selectError);
+    this.loading$ = this.store.select(selectAccountsLoading);
+    this.error$ = this.store.select(selectAccountError);
   }
 
   ngOnInit() {
@@ -114,35 +108,13 @@ export class EditAccountComponent {
           roleId:
             raw.roleId === RoleEnum.admin ? RoleEnum.admin : RoleEnum.user,
           accountId: raw.accountId,
+          isActive: raw.isActive,
         };
       },
       error: (err) => {
         this.messageError = 'Không thể tải thông tin tài khoản.';
       },
     });
-
-    const loadingSub = this.loadingState$.subscribe(([prev, curr]) => {
-      if (!this.hasDispatched) return;
-
-      if (prev === true && curr === false) {
-        this.errorState$.pipe(take(1)).subscribe((error) => {
-          if (error) {
-            this.messageError = error.message;
-            this.isLoading = false;
-            this.showConfirm = false;
-          } else {
-            setTimeout(() => {
-              this.isLoading = false;
-              this.showConfirm = false;
-              this.pendingData = null;
-              this.router.navigateByUrl('/module/human-resources/accounts');
-            }, 2000);
-          }
-        });
-      }
-    });
-
-    this.subscriptions.add(loadingSub);
   }
 
   // Xử lý quay lại route cha
@@ -157,6 +129,9 @@ export class EditAccountComponent {
         throw new Error('Username must not contain spaces');
       }
 
+      const roleId = Number(data.roleId);
+      data = { ...data, roleId };
+
       this.pendingData = data;
       this.showConfirm = true;
     } catch (e) {
@@ -170,21 +145,30 @@ export class EditAccountComponent {
 
   confirmEdit() {
     if (!this.pendingData) return;
-    this.hasDispatched = true;
-    this.isLoading = true;
 
-    this.store.dispatch(
-      AccountActions.editAccount({ account: this.pendingData })
-    );
+    this.store.dispatch(editAccount({ account: this.pendingData }));
+
+    // Đợi kết quả xử lý sau khi dispatch
+    this.loading$
+      .pipe(
+        pairwise(),
+        filter(([prev, curr]) => prev === true && curr === false),
+        take(1)
+      )
+      .subscribe(() => {
+        this.error$.pipe(take(1)).subscribe((error) => {
+          this.showConfirm = false;
+
+          if (!error) {
+            this.pendingData = null;
+            this.router.navigateByUrl('/module/human-resources/accounts');
+          }
+        });
+      });
   }
 
   cancelEdit() {
     this.showConfirm = false;
-    this.isLoading = false;
     this.pendingData = null;
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
   }
 }

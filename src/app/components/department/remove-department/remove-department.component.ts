@@ -32,9 +32,7 @@ import { ActionDepartment } from '../../../store/departments/department.actions'
 })
 export class RemoveDepartmentComponent {
   showConfirm = true;
-
   pendingData: IloadDepartment | null = null;
-
   loading$: Observable<boolean>;
 
   constructor(

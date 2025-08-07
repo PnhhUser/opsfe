@@ -36,7 +36,7 @@ import { ActionDepartment } from '../../../store/departments/department.actions'
         [fields]="accountField"
         [initialValue]="initialValue"
         (formSubmit)="submitForm($event)"
-        [messageError]="messageError"
+        [messageError]="(error$ | async)?.message ?? messageError"
       ></app-dynamic-form>
     </app-panel>
 
@@ -149,10 +149,7 @@ export class EditDepartmentComponent {
       .subscribe(() => {
         this.error$.pipe(take(1)).subscribe((error) => {
           this.showConfirm = false;
-
-          if (error) {
-            this.messageError = error.message;
-          } else {
+          if (!error) {
             this.pendingData = null;
             this.router.navigateByUrl('/module/human-resources/departments');
           }

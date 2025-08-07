@@ -1,0 +1,9 @@
+<ag-grid-angular
+  class="ag-theme-alpine w-full h-full"
+  [gridOptions]="gridOptions"
+  [columnDefs]="columnDefs"
+  [animateRows]="true"
+  [rowData]="rowData"
+  (gridReady)="onGridReady($event)"
+  (rowClicked)="onRowClicked($event)"
+></ag-grid-angular>

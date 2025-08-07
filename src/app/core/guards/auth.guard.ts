@@ -2,9 +2,8 @@ import { Injectable } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { selectUser } from '../../store/auth/auth.selectors';
-import * as AuthActions from '../../store/auth/auth.actions';
-import { Observable, of, race, timer } from 'rxjs';
-import { filter, map, switchMap, take } from 'rxjs/operators';
+import { Observable, race, timer } from 'rxjs';
+import { filter, map, take } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {

@@ -1,7 +1,7 @@
 import { Store } from '@ngrx/store';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Router, RouterLink, RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {
   ChevronLeft,
   ChevronRight,
@@ -31,7 +31,6 @@ const myIcons = {
   standalone: true,
   imports: [CommonModule, LucideAngularModule, NgOptimizedImage, RouterModule],
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.css'],
   providers: [
     {
       provide: LUCIDE_ICONS,
@@ -41,6 +40,11 @@ const myIcons = {
   ],
 })
 export class SidebarComponent {
+  // Sidebar state
+  @Input() isNavOpen: boolean = true;
+
+  @Output() toggle = new EventEmitter<boolean>();
+
   // Icons
   readonly LogoutIcon = LogOutIcon;
   readonly DashboardIcon = LayoutDashboardIcon;
@@ -75,12 +79,7 @@ export class SidebarComponent {
     },
   ];
 
-  constructor(private store: Store) {}
-
-  // Sidebar state
-  @Input() isNavOpen: boolean = true;
-
-  @Output() toggle = new EventEmitter<boolean>();
+  constructor(private store: Store, private router: Router) {}
 
   navOpen() {
     return this.isNavOpen;

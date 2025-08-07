@@ -1,35 +1,42 @@
-<div class="flex h-screen">
-  <!-- SIDEBAR -->
-  <div
-    class="{{
-      navOpen() ? 'w-1/6' : 'w-20'
-    }} transition-all duration-300 overflow-hidden"
-    [ngClass]="{
-      'w-20': isMobile || !navOpen(),
-      'w-1/6': !isMobile && navOpen()
-    }"
-  >
-    <app-navbar
-      [isNavOpen]="navOpen()"
-      (toggle)="toggleNav($event)"
-    ></app-navbar>
-  </div>
-
-  <!-- MAIN CONTENT -->
-  <div
-    class="{{
-      navOpen() ? 'w-5/6' : 'w-full'
-    }} transition-all duration-300 h-full bg-gray-50"
-    [ngClass]="{
-      'w-full': isMobile || !navOpen(),
-      'w-5/6': !isMobile && navOpen()
-    }"
-  >
-    <div [ngClass]="{ hidden: isMobile, block: !isMobile }">
-      <app-topbar></app-topbar>
-    </div>
-    <div class="p-5">
-      <router-outlet />
-    </div>
-  </div>
+<!-- Hiển thị loading -->
+<div *ngIf="loading$ | async" class="flex justify-center items-center h-[80vh]">
+  <app-loading />
 </div>
+
+<ng-container *ngIf="!(loading$ | async)">
+  <div class="flex h-screen">
+    <!-- SIDEBAR -->
+    <div
+      class="{{
+        navOpen() ? 'w-1/6' : 'w-20'
+      }} transition-all duration-300 overflow-hidden"
+      [ngClass]="{
+        'w-20': isMobile || !navOpen(),
+        'w-1/6': !isMobile && navOpen()
+      }"
+    >
+      <app-navbar
+        [isNavOpen]="navOpen()"
+        (toggle)="toggleNav($event)"
+      ></app-navbar>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div
+      class="{{
+        navOpen() ? 'w-5/6' : 'w-full'
+      }} transition-all duration-300 h-full bg-gray-50"
+      [ngClass]="{
+        'w-full': isMobile || !navOpen(),
+        'w-5/6': !isMobile && navOpen()
+      }"
+    >
+      <div [ngClass]="{ hidden: isMobile, block: !isMobile }">
+        <app-topbar></app-topbar>
+      </div>
+      <div class="p-5">
+        <router-outlet />
+      </div>
+    </div>
+  </div>
+</ng-container>

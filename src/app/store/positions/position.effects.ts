@@ -26,6 +26,7 @@ export class PositionEffect {
       ofType(ActionPosition.loadPositions),
       mergeMap(() => {
         return this.positionService.getPositions().pipe(
+          delay(500),
           map((response) => {
             return ActionPosition.loadPositionsSuccess({
               positions: response.data,

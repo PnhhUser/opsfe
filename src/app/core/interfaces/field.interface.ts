@@ -1,3 +1,4 @@
+import { Gender } from '../enum/gender.enum';
 import { RoleEnum } from '../enum/role.enum';
 
 export interface IField<K extends string = string> {
@@ -14,6 +15,6 @@ export interface IField<K extends string = string> {
     | 'hidden'
     | 'number';
   required?: boolean;
-  default?: string | boolean | null | RoleEnum;
+  default?: string | boolean | null | RoleEnum | Gender;
   options?: { label: string; value: any }[]; // dành cho select
 }

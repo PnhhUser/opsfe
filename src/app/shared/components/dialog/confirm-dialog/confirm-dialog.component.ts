@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LoadingComponent } from '../../loading/loading.component';
 
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [CommonModule],
-  styleUrls: ['./confirm-dialog.component.css'],
+  imports: [CommonModule, LoadingComponent],
   template: `
     <div
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -16,7 +16,7 @@ import { CommonModule } from '@angular/common';
         <!-- Nếu loading: chỉ hiển thị vòng xoay + text -->
         <ng-container *ngIf="loading; else confirmContent">
           <div class="flex flex-col items-center gap-4">
-            <span class="loader"></span>
+            <app-loading />
             <p class="text-gray-700">Đang xử lý...</p>
           </div>
         </ng-container>

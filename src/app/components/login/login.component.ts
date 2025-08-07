@@ -10,20 +10,20 @@ import {
 } from '@angular/forms';
 import * as AuthActions from '../../store/auth/auth.actions';
 import {
-  selectError,
-  selectLoading,
+  selectAuthError,
+  selectAuthLoading,
   selectUser,
 } from '../../store/auth/auth.selectors';
 import { IError } from '../../core/interfaces/error.interface';
 import { Router } from '@angular/router';
 import { ILoginForm } from '../../core/interfaces/auth.interface';
+import { LoadingComponent } from '../../shared/components/loading/loading.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LoadingComponent],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
@@ -40,7 +40,7 @@ export class LoginComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
 
-    this.error$ = this.store.select(selectError).pipe(
+    this.error$ = this.store.select(selectAuthError).pipe(
       map((error) => {
         if (!error) return null;
         if (error.source === 'checkAuth') return null;
@@ -48,17 +48,14 @@ export class LoginComponent implements OnInit {
       })
     );
 
-    this.loading$ = this.store.select(selectLoading);
+    this.loading$ = this.store.select(selectAuthLoading);
   }
 
   ngOnInit(): void {
-    combineLatest([
-      this.store.select(selectUser),
-      this.store.select(selectLoading),
-    ])
+    combineLatest([this.store.select(selectUser), this.loading$])
       .pipe(
-        filter(([_, loading]) => loading === false),
-        take(2)
+        filter(([user, loading]) => !loading && !!user),
+        take(1)
       )
       .subscribe(([user]) => {
         if (user) {

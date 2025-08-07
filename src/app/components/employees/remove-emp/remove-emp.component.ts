@@ -1,32 +1,31 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog/confirm-dialog.component';
+import { ILoadEmployee } from '../../../core/interfaces/employee.interface';
+import { distinctUntilChanged, filter, map, Observable, take } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import * as AccountActions from '../../../store/accounts/account.actions';
 import {
-  selectAccounts,
-  selectAccountsLoading,
-} from '../../../store/accounts/account.selectors';
-import { distinctUntilChanged, filter, map, Observable, take } from 'rxjs';
-import { ILoadAccount } from '../../../core/interfaces/account.interface';
+  selectEmpLoading,
+  selectEmps,
+} from '../../../store/employees/employee.selectors';
+import { ActionEmployee } from '../../../store/employees/employee.actions';
 
 @Component({
-  selector: 'app-remove-account',
+  selector: 'app-remove-emp',
   standalone: true,
   imports: [CommonModule, ConfirmDialogComponent],
   template: `<app-confirm-dialog
     *ngIf="showConfirm"
-    [message]="'Bạn có chắc muốn xóa ' + pendingData?.username"
+    [message]="'Bạn có chắc muốn xóa ' + pendingData?.fullName + ' không ?'"
     [loading]="(loading$ | async) ?? false"
     (confirm)="confirm()"
     (cancel)="cancel()"
   ></app-confirm-dialog>`,
 })
-export class RemoveAccountComponent {
+export class RemoveEmpComponent {
   showConfirm = true;
-  pendingData: ILoadAccount | null = null;
-
+  pendingData: ILoadEmployee | null = null;
   loading$: Observable<boolean>;
 
   constructor(
@@ -34,23 +33,23 @@ export class RemoveAccountComponent {
     private activatedRoute: ActivatedRoute,
     private store: Store
   ) {
-    this.loading$ = this.store.select(selectAccountsLoading);
+    this.loading$ = this.store.select(selectEmpLoading);
   }
 
   ngOnInit() {
-    const accountId = this.activatedRoute.snapshot.params?.['accountId'];
+    const employeeId = this.activatedRoute.snapshot.params?.['employeeId'];
 
-    if (!accountId) {
-      this.router.navigateByUrl('/module/human-resources/accounts');
+    if (!employeeId) {
+      this.router.navigateByUrl('/module/human-resources/employees');
       return;
     }
 
     this.store
-      .select(selectAccounts)
+      .select(selectEmps)
       .pipe(
         map((data) => {
           return data
-            .filter((v) => v.accountId === Number.parseInt(accountId))
+            .filter((v) => v.employeeId === Number.parseInt(employeeId))
             .find((v) => v);
         })
       )
@@ -65,7 +64,9 @@ export class RemoveAccountComponent {
     if (!this.pendingData) return;
 
     this.store.dispatch(
-      AccountActions.removeAccount({ accountId: this.pendingData.accountId })
+      ActionEmployee.removeEmployee({
+        employeeId: this.pendingData.employeeId,
+      })
     );
 
     // Đợi kết quả xử lý sau khi dispatch
@@ -78,7 +79,7 @@ export class RemoveAccountComponent {
       .subscribe(() => {
         this.showConfirm = false;
         this.pendingData = null;
-        this.router.navigateByUrl('/module/human-resources/accounts');
+        this.router.navigateByUrl('/module/human-resources/employees');
       });
   }
 
@@ -86,6 +87,6 @@ export class RemoveAccountComponent {
     this.showConfirm = false;
     this.pendingData = null;
 
-    this.router.navigateByUrl('/module/human-resources/accounts');
+    this.router.navigateByUrl('/module/human-resources/employees');
   }
 }

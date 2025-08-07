@@ -67,6 +67,7 @@ export class DynamicFormComponent<T extends Record<string, any> = any>
               break;
             case 'select':
             case 'number':
+            case 'date':
               defaultValue = null;
               break;
             default:
@@ -88,32 +89,5 @@ export class DynamicFormComponent<T extends Record<string, any> = any>
     } else {
       this.form.markAllAsTouched();
     }
-  }
-
-  // Xử lý format theo VND *.000
-  protected formatNumber(value: string): string {
-    const number = value.replace(/\D/g, '');
-    return number.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  }
-
-  protected parseNumber(value: string): number {
-    return Number(value.replace(/\./g, ''));
-  }
-
-  protected onFormattedNumberInput(fieldName: string, event: Event) {
-    const input = event.target as HTMLInputElement;
-    const raw = input.value;
-
-    // Nếu người dùng xóa hết => set null
-    if (!raw || raw.trim() === '') {
-      this.form.get(fieldName)?.setValue(null, { emitEvent: false });
-      return;
-    }
-
-    const formatted = this.formatNumber(raw);
-    input.value = formatted;
-
-    const valueNumber = this.parseNumber(formatted);
-    this.form.get(fieldName)?.setValue(valueNumber, { emitEvent: false });
   }
 }

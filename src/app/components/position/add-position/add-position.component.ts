@@ -71,7 +71,8 @@ export class AddPositionComponent {
     {
       name: 'baseSalary',
       label: 'Base salary',
-      type: 'number',
+      type: 'text',
+      money: true,
     },
     { name: 'description', label: 'Description', type: 'textarea' },
   ];

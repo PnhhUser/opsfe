@@ -184,8 +184,6 @@ export class EditPositionComponent {
 
       data = { ...data, departmentId, baseSalary };
 
-      console.log(data);
-
       this.pendingData = data;
       this.showConfirm = true;
     } catch (e) {

@@ -13,7 +13,7 @@ import {
   selectAccountError,
   selectAccountsLoading,
 } from '../../../store/accounts/account.selectors';
-import { filter, pairwise, startWith, take } from 'rxjs';
+import { filter, pairwise, take } from 'rxjs';
 import { editAccount } from '../../../store/accounts/account.actions';
 
 @Component({

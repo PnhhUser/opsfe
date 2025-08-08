@@ -20,8 +20,6 @@ import {
 import { ActionEmployee } from '../../store/employees/employee.actions';
 import { Utils } from '../../core/utils/index.utils';
 import { map } from 'rxjs';
-import { PanelComponent } from '../../shared/components/panel/panel.component';
-import { Gender } from '../../core/enum/gender.enum';
 
 @Component({
   selector: 'app-employee',
@@ -175,8 +173,6 @@ export class EmployeeComponent {
       headerName: 'Start Date',
       sortable: true,
       cellRenderer: ({ value }: ICellRendererParams) => {
-        console.log(value);
-
         if (!value) {
           return `
       <span class="inline-flex justify-center rounded-md px-2 py-1 text-xs font-medium ring-1 bg-red-50 text-red-700 ring-red-700/10 ring-inset min-w-[90px]">
@@ -193,8 +189,6 @@ export class EmployeeComponent {
       headerName: 'Date of Birth',
       sortable: true,
       cellRenderer: ({ value }: ICellRendererParams) => {
-        console.log(value);
-
         if (!value) {
           return `
       <span class="inline-flex justify-center rounded-md px-2 py-1 text-xs font-medium ring-1 bg-red-50 text-red-700 ring-red-700/10 ring-inset min-w-[90px]">

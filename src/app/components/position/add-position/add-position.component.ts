@@ -9,7 +9,7 @@ import {
   selectPositionLoading,
 } from '../../../store/positions/position.selector';
 import { ActionPosition } from '../../../store/positions/position.actions';
-import { filter, map, pairwise, take } from 'rxjs';
+import { filter, pairwise, take } from 'rxjs';
 import { PanelComponent } from '../../../shared/components/panel/panel.component';
 import { DynamicFormComponent } from '../../../shared/components/dynamic-form/dynamic-form.component';
 import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog/confirm-dialog.component';

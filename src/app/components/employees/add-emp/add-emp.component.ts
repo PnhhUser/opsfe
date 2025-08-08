@@ -13,12 +13,10 @@ import {
   selectEmpLoading,
 } from '../../../store/employees/employee.selectors';
 import { ActionEmployee } from '../../../store/employees/employee.actions';
-import { filter, map, pairwise, take, withLatestFrom } from 'rxjs';
+import { filter, pairwise, take, withLatestFrom } from 'rxjs';
 import { Gender } from '../../../core/enum/gender.enum';
 import { selectPositions } from '../../../store/positions/position.selector';
 import { ActionPosition } from '../../../store/positions/position.actions';
-import { loadAccount } from '../../../store/accounts/account.actions';
-import { selectAccounts } from '../../../store/accounts/account.selectors';
 
 @Component({
   selector: 'app-add-emp',

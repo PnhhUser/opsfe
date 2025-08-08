@@ -3,14 +3,7 @@ import { Component } from '@angular/core';
 import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog/confirm-dialog.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import {
-  distinctUntilChanged,
-  filter,
-  map,
-  Observable,
-  pairwise,
-  take,
-} from 'rxjs';
+import { distinctUntilChanged, filter, map, Observable, take } from 'rxjs';
 import { IloadDepartment } from '../../../core/interfaces/department.interface';
 import {
   selectDepartmentLoading,

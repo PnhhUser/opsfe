@@ -22,10 +22,18 @@
     />
 
     <button
+      *ngIf="selectEmpItem"
+      class="border-sky-700 text-sky-700 border text-sm font-medium rounded-md ms-2 shadow mb-4 px-4 hover:bg-teal-50"
+      (click)="onViewSelectItem(selectEmpItem)"
+    >
+      View
+    </button>
+
+    <button
       class="border-teal-700 text-teal-700 border text-sm font-medium rounded-md ms-2 shadow mb-4 px-4 hover:bg-teal-50"
       (click)="exportCSV()"
     >
-      Xuất CSV
+      Export CSV
     </button>
   </div>
 
@@ -38,6 +46,85 @@
       (rowSelected)="onRowSelect($event)"
       (girdEvent)="onGirdEvent($event)"
     ></app-table>
+  </div>
+
+  <!-- phần dialog view -->
+  <div *ngIf="showView">
+    <!-- Overlay -->
+    <div
+      class="fixed inset-0 bg-black bg-opacity-50 z-40"
+      (click)="closeDialogView()"
+    ></div>
+
+    <!-- Dialog -->
+    <div
+      class="fixed top-10 left-1/2 -translate-x-1/2 w-[500px] bg-white p-4 z-50 rounded shadow-md"
+    >
+      <h2 class="text-xl font-normal">Employee Information</h2>
+      <div class="border-b-[1px] w-full my-2 border-gray-300"></div>
+      <!-- Nội dung -->
+      <div
+        class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 text-sm leading-relaxed break-words"
+      >
+        <!-- Field Column -->
+        <div class="space-y-3 col">
+          <div class="underline">Full name</div>
+          <div class="underline">Email</div>
+          <div class="underline">Phone Number</div>
+          <div class="underline">Address</div>
+          <div class="underline">Sex</div>
+          <div class="underline">Date of birth</div>
+          <div class="underline">Start date work</div>
+          <div class="underline">Status</div>
+          <div class="underline">Regency</div>
+          <div class="underline">Account</div>
+          <div class="underline">Department</div>
+          <div class="underline">Date added</div>
+          <div class="underline">Date Edited</div>
+        </div>
+
+        <!-- Value Column -->
+        <div class="space-y-3" *ngFor="let employee of employeeView">
+          <div class="text-zinc-500">{{ employee.fullName }}</div>
+          <div class="text-zinc-500">{{ employee.email }}</div>
+          <div class="text-zinc-500">
+            {{ employee.phoneNumber || "Chưa cập nhật" }}
+          </div>
+          <div class="text-zinc-500">
+            {{ employee.address || "Chưa cập nhật" }}
+          </div>
+          <div class="text-zinc-500 capitalize">
+            {{ employee.gender }}
+          </div>
+          <div class="text-zinc-500">
+            {{
+              (employee.dateOfBirth | date : "dd/MM/yyyy") || "Chưa cập nhật"
+            }}
+          </div>
+          <div class="text-zinc-500">
+            {{ (employee.startDate | date : "dd/MM/yyyy") || "Chưa cập nhật" }}
+          </div>
+          <div class="text-zinc-500">
+            {{ employee.isActive ? "Active" : "Inactive" }}
+          </div>
+          <div class="text-zinc-500">
+            {{ employee.positionName || "Chưa Cập nhật" }}
+          </div>
+          <div class="text-zinc-500">
+            {{ employee.accountName || "Chưa Cập nhật" }}
+          </div>
+          <div class="text-zinc-500">
+            {{ employee.departmentName || "Chưa Cập nhật" }}
+          </div>
+          <div class="text-zinc-500">
+            {{ employee.createAt | date : "dd/MM/yyyy HH:mm" }}
+          </div>
+          <div class="text-zinc-500">
+            {{ employee.updateAt | date : "dd/MM/yyyy HH:mm" }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <router-outlet />

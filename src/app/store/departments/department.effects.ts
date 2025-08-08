@@ -2,7 +2,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { DepartmentService } from './../../core/services/department.service';
 import { Injectable } from '@angular/core';
 import { ActionDepartment } from './department.actions';
-import { catchError, delay, exhaustMap, map, mergeMap, of } from 'rxjs';
+import { catchError, exhaustMap, map, mergeMap, of } from 'rxjs';
 
 @Injectable()
 export class DepartmentEffect {
@@ -26,7 +26,6 @@ export class DepartmentEffect {
       ofType(ActionDepartment.loadDepartments),
       mergeMap(() => {
         return this.departmentService.getDepartments().pipe(
-          delay(500),
           map((response) => {
             return ActionDepartment.loadDepartmentsSuccess({
               departments: response.data,

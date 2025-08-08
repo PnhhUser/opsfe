@@ -18,9 +18,9 @@ import {
   selectAccounts,
   selectAccountsLoading,
 } from '../../store/accounts/account.selectors';
-import { DatetimeUtils } from '../../core/utils/datetime.utils';
 import { TableComponent } from '../../shared/components/table/table.component';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
+import { Utils } from '../../core/utils/index.utils';
 
 @Component({
   selector: 'app-account',
@@ -45,7 +45,7 @@ export class AccountComponent {
 
   // Định nghĩa các cột hiển thị trong AG Grid
   columnDefs: ColDef<ILoadAccount>[] = [
-    { field: 'username', sortable: true, filter: true, minWidth: 140 },
+    { field: 'username', sortable: true, filter: true, minWidth: 100 },
     {
       field: 'roleId',
       headerName: 'Role',
@@ -66,6 +66,7 @@ export class AccountComponent {
     `;
       },
       minWidth: 100,
+      maxWidth: 120,
     },
     // Active / Inactive badge
     {
@@ -86,6 +87,7 @@ export class AccountComponent {
     `;
       },
       minWidth: 100,
+      maxWidth: 120,
     },
 
     // Online / Offline badge
@@ -107,6 +109,7 @@ export class AccountComponent {
     `;
       },
       minWidth: 100,
+      maxWidth: 120,
     },
 
     // Hiển thị ngày tạo và ngày cập nhật
@@ -114,15 +117,15 @@ export class AccountComponent {
       field: 'createdAt',
       headerName: 'Date Added',
       sortable: true,
-      minWidth: 150,
-      hide: true,
+      minWidth: 100,
+      maxWidth: 120,
     },
     {
       field: 'updatedAt',
-      headerName: 'Date Edited',
+      headerName: 'Date Editd',
       sortable: true,
-      minWidth: 150,
-      hide: true,
+      minWidth: 100,
+      maxWidth: 120,
     },
   ];
 
@@ -138,10 +141,12 @@ export class AccountComponent {
     // Lấy breadcrumb từ route cha để hiển thị label quay về
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
     this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : this.parentLabel;
-    this.prefixRouter = this.router.url;
+    this.prefixRouter = Utils.getFullRoutePath(this.activatedRoute.snapshot);
 
     this.accounts$ = this.store.select(selectAccounts);
-    this.loading$ = this.store.select(selectAccountsLoading);
+    this.loading$ = Utils.withMinDelay(
+      this.store.select(selectAccountsLoading)
+    );
   }
 
   // Gọi khi component được khởi tạo
@@ -153,8 +158,8 @@ export class AccountComponent {
         roleId: account.roleId,
         username: account.username,
         isActive: account.isActive,
-        createdAt: DatetimeUtils.toLocaleDateString(account.createdAt),
-        updatedAt: DatetimeUtils.toLocaleDateString(account.updatedAt),
+        createdAt: Utils.toLocaleDateString(account.createdAt),
+        updatedAt: Utils.toLocaleDateString(account.updatedAt),
         lastseen: account.lastseen,
       }));
     });

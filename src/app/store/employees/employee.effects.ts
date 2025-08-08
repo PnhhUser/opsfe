@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { EmployeeService } from '../../core/services/employee.service';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { ActionEmployee } from './employee.actions';
-import { catchError, delay, exhaustMap, map, mergeMap, of } from 'rxjs';
+import { catchError, exhaustMap, map, mergeMap, of } from 'rxjs';
 
 @Injectable()
 export class EmployeeEffect {
@@ -26,7 +26,6 @@ export class EmployeeEffect {
       ofType(ActionEmployee.loadEmployees),
       mergeMap(() => {
         return this.employeeService.getEmployees().pipe(
-          delay(500),
           map((response) => {
             return ActionEmployee.loadEmployeeSuccess({
               employees: response.data,

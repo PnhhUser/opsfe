@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { AccountService } from '../../core/services/account.service';
 import { Router } from '@angular/router';
 import * as AccountAction from './account.actions';
-import { catchError, delay, exhaustMap, map, mergeMap, of } from 'rxjs';
+import { catchError, exhaustMap, map, mergeMap, of } from 'rxjs';
 import { ILoadAccount } from '../../core/interfaces/account.interface';
 
 @Injectable()
@@ -29,7 +29,6 @@ export class AccountEffect {
       ofType(AccountAction.loadAccount),
       mergeMap(() => {
         return this.accountService.getAccounts().pipe(
-          delay(500),
           map((accountsResponse) => {
             return AccountAction.loadAccountSuccess({
               accounts: accountsResponse.data,

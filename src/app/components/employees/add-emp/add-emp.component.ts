@@ -86,7 +86,7 @@ export class AddEmpComponent {
       default: null,
       options: [
         {
-          label: 'Chưa xác định',
+          label: 'No assigned',
           value: null,
         },
       ],
@@ -96,7 +96,7 @@ export class AddEmpComponent {
       label: 'Position',
       type: 'select',
       default: null,
-      options: [{ label: 'Chưa xác định', value: null }],
+      options: [{ label: 'No assigned', value: null }],
     },
     { name: 'isActive', label: 'Active', type: 'checkbox', default: true },
   ];
@@ -126,9 +126,9 @@ export class AddEmpComponent {
       )
       .subscribe((positions) => {
         const options = [
-          { label: 'Chưa xác định', value: null },
+          { label: 'No assigned', value: null },
           ...positions.map((pos) => ({
-            label: pos.name,
+            label: pos.key,
             value: pos.positionId,
           })),
         ];
@@ -143,7 +143,7 @@ export class AddEmpComponent {
       let accounts = res.data;
 
       const options = [
-        { label: 'Chưa xác định', value: null },
+        { label: 'No assigned', value: null },
         ...accounts.map((a) => ({
           label: a.name,
           value: a.id,
@@ -170,10 +170,8 @@ export class AddEmpComponent {
 
       data = {
         ...data,
-        positionId:
-          Number(data.positionId) === 0 ? null : Number(data.positionId),
-        accountId:
-          Number(data.accountId) === 0 ? null : Number(data.positionId),
+        positionId: data.positionId === null ? null : Number(data.positionId),
+        accountId: data.accountId === null ? null : Number(data.accountId),
       };
 
       this.pendingData = data;

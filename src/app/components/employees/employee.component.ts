@@ -18,7 +18,10 @@ import {
   selectEmps,
 } from '../../store/employees/employee.selectors';
 import { ActionEmployee } from '../../store/employees/employee.actions';
-import { filter, take } from 'rxjs';
+import { Utils } from '../../core/utils/index.utils';
+import { map } from 'rxjs';
+import { PanelComponent } from '../../shared/components/panel/panel.component';
+import { Gender } from '../../core/enum/gender.enum';
 
 @Component({
   selector: 'app-employee',
@@ -40,15 +43,15 @@ export class EmployeeComponent {
   loading$;
   emps$;
   employees: ILoadEmployee[] = [];
+  showView: boolean = false;
   columnDefs: ColDef<ILoadEmployee>[] = [
     {
       field: 'fullName',
       headerName: 'full name',
       sortable: true,
       filter: true,
-      minWidth: 280,
     },
-    { field: 'email', sortable: true, filter: true, minWidth: 280 },
+    { field: 'email', sortable: true, filter: true },
     {
       field: 'isActive',
       headerName: 'active',
@@ -66,7 +69,6 @@ export class EmployeeComponent {
     `;
       },
       sortable: true,
-      minWidth: 100,
     },
     {
       field: 'positionName',
@@ -77,7 +79,7 @@ export class EmployeeComponent {
         if (!value) {
           return `
       <span class="inline-flex justify-center rounded-md px-2 py-1 text-xs font-medium ring-1 bg-red-50 text-red-700 ring-red-700/10 ring-inset min-w-[90px]">
-        Not Assigned
+        No assigned
       </span>
     `;
         }
@@ -86,7 +88,6 @@ export class EmployeeComponent {
       },
       sortable: true,
       filter: true,
-      minWidth: 230,
     },
     {
       field: 'departmentName',
@@ -97,7 +98,7 @@ export class EmployeeComponent {
         if (!value) {
           return `
       <span class="inline-flex justify-center rounded-md px-2 py-1 text-xs font-medium ring-1 bg-red-50 text-red-700 ring-red-700/10 ring-inset min-w-[90px]">
-        Not Assigned
+        No assigned
       </span>
     `;
         }
@@ -106,7 +107,6 @@ export class EmployeeComponent {
       },
       sortable: true,
       filter: true,
-      minWidth: 230,
     },
     {
       field: 'accountName',
@@ -117,7 +117,7 @@ export class EmployeeComponent {
         if (!value) {
           return `
       <span class="inline-flex justify-center rounded-md px-2 py-1 text-xs font-medium ring-1 bg-red-50 text-red-700 ring-red-700/10 ring-inset min-w-[90px]">
-        Not Assigned
+        No assigned
       </span>
     `;
         }
@@ -126,9 +126,103 @@ export class EmployeeComponent {
       },
       sortable: true,
       filter: true,
-      minWidth: 230,
+    },
+    {
+      field: 'phoneNumber',
+      headerName: 'Phone Number',
+      cellRenderer: (params: ICellRendererParams) => {
+        const value = params.value;
+
+        if (!value) {
+          return `
+      <span class="inline-flex justify-center rounded-md px-2 py-1 text-xs font-medium ring-1 bg-red-50 text-red-700 ring-red-700/10 ring-inset min-w-[90px]">
+        No phone
+      </span>
+    `;
+        }
+
+        return value;
+      },
+      sortable: true,
+    },
+    {
+      field: 'address',
+      headerName: 'Address',
+      cellRenderer: (params: ICellRendererParams) => {
+        const value = params.value;
+
+        if (!value) {
+          return `
+      <span class="inline-flex justify-center rounded-md px-2 py-1 text-xs font-medium ring-1 bg-red-50 text-red-700 ring-red-700/10 ring-inset min-w-[90px]">
+        No address
+      </span>
+    `;
+        }
+
+        return value;
+      },
+      sortable: true,
+    },
+    {
+      field: 'gender',
+      headerName: 'Gender',
+      sortable: true,
+      minWidth: 80,
+      maxWidth: 120,
+    },
+    {
+      field: 'startDate',
+      headerName: 'Start Date',
+      sortable: true,
+      cellRenderer: ({ value }: ICellRendererParams) => {
+        console.log(value);
+
+        if (!value) {
+          return `
+      <span class="inline-flex justify-center rounded-md px-2 py-1 text-xs font-medium ring-1 bg-red-50 text-red-700 ring-red-700/10 ring-inset min-w-[90px]">
+        No assigned
+      </span>
+    `;
+        }
+
+        return Utils.toLocaleDateString(value);
+      },
+    },
+    {
+      field: 'dateOfBirth',
+      headerName: 'Date of Birth',
+      sortable: true,
+      cellRenderer: ({ value }: ICellRendererParams) => {
+        console.log(value);
+
+        if (!value) {
+          return `
+      <span class="inline-flex justify-center rounded-md px-2 py-1 text-xs font-medium ring-1 bg-red-50 text-red-700 ring-red-700/10 ring-inset min-w-[90px]">
+        No assigned
+      </span>
+    `;
+        }
+
+        return Utils.toLocaleDateString(value);
+      },
+    },
+    {
+      field: 'createAt',
+      headerName: 'Create date',
+      sortable: true,
+      cellRenderer: ({ value }: ICellRendererParams) =>
+        Utils.toLocaleDatetimeString(value),
+    },
+    {
+      field: 'updateAt',
+      headerName: 'Update date',
+      sortable: true,
+      cellRenderer: ({ value }: ICellRendererParams) =>
+        Utils.toLocaleDatetimeString(value),
     },
   ];
+
+  employeeView: ILoadEmployee[] = [];
 
   constructor(
     private router: Router,
@@ -138,9 +232,9 @@ export class EmployeeComponent {
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
     this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : this.parentLabel;
 
-    this.prefixRouter = this.router.url;
+    this.prefixRouter = Utils.getFullRoutePath(this.activatedRoute.snapshot);
 
-    this.loading$ = this.store.select(selectEmpLoading);
+    this.loading$ = Utils.withMinDelay(this.store.select(selectEmpLoading));
     this.emps$ = this.store.select(selectEmps);
   }
 
@@ -189,5 +283,25 @@ export class EmployeeComponent {
     this.gridApi = gird.event.api;
   }
 
-  exportCSV() {}
+  exportCSV() {
+    if (!this.gridApi) return;
+    this.gridApi.exportDataAsCsv({
+      fileName: 'DanhSachNhanvien.csv',
+    });
+  }
+
+  onViewSelectItem(selectItem: { id: number } | null) {
+    this.showView = true;
+    this.emps$
+      .pipe(
+        map((emps) => emps.filter((emp) => emp.employeeId === selectItem?.id))
+      )
+      .subscribe((data: ILoadEmployee[]) => {
+        this.employeeView = data;
+      });
+  }
+
+  closeDialogView() {
+    this.showView = false;
+  }
 }

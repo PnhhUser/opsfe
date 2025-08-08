@@ -12,7 +12,7 @@ import { IloadDepartment } from '../../core/interfaces/department.interface';
 import { ActionDepartment } from '../../store/departments/department.actions';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { TableComponent } from '../../shared/components/table/table.component';
-import { DatetimeUtils } from '../../core/utils/datetime.utils';
+import { Utils } from '../../core/utils/index.utils';
 
 @Component({
   selector: 'app-account',
@@ -33,13 +33,20 @@ export class DepartmentComponent {
   prefixRouter: string;
   departments: IloadDepartment[] = [];
   columnDefs: ColDef<IloadDepartment>[] = [
-    { field: 'name', sortable: true, filter: true, minWidth: 300 },
+    {
+      field: 'name',
+      sortable: true,
+      filter: true,
+      minWidth: 100,
+      maxWidth: 220,
+    },
     {
       field: 'key',
       headerName: 'Code',
       sortable: true,
       filter: true,
-      minWidth: 50,
+      minWidth: 100,
+      maxWidth: 180,
     },
     { field: 'description', minWidth: 700 },
     {
@@ -64,8 +71,10 @@ export class DepartmentComponent {
   ) {
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
     this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : this.parentLabel;
-    this.prefixRouter = this.router.url;
-    this.loading$ = this.store.select(selectDepartmentLoading);
+    this.prefixRouter = Utils.getFullRoutePath(this.activatedRoute.snapshot);
+    this.loading$ = Utils.withMinDelay(
+      this.store.select(selectDepartmentLoading)
+    );
   }
 
   ngOnInit(): void {
@@ -79,8 +88,8 @@ export class DepartmentComponent {
             name: position.name,
             key: position.key,
             description: position.description,
-            updateAt: DatetimeUtils.toLocaleDateString(position.updateAt),
-            createAt: DatetimeUtils.toLocaleDateString(position.createAt),
+            updateAt: Utils.toLocaleDateString(position.updateAt),
+            createAt: Utils.toLocaleDateString(position.createAt),
           };
         });
       });

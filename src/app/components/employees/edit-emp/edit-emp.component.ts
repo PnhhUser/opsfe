@@ -14,10 +14,12 @@ import {
   selectEmpLoading,
   selectEmps,
 } from '../../../store/employees/employee.selectors';
-import { filter, map, pairwise, take } from 'rxjs';
+import { combineLatest, filter, map, pairwise, take } from 'rxjs';
 import { ActionEmployee } from '../../../store/employees/employee.actions';
 import { ActionPosition } from '../../../store/positions/position.actions';
 import { selectPositions } from '../../../store/positions/position.selector';
+import { selectAccounts } from '../../../store/accounts/account.selectors';
+import { loadAccount } from '../../../store/accounts/account.actions';
 
 @Component({
   selector: 'app-edit-emp',
@@ -85,7 +87,7 @@ export class EditEmpComponent {
       default: null,
       options: [
         {
-          label: 'Chưa xác định',
+          label: 'No assigned',
           value: null,
         },
       ],
@@ -95,7 +97,7 @@ export class EditEmpComponent {
       label: 'Position',
       type: 'select',
       default: null,
-      options: [{ label: 'Chưa xác định', value: null }],
+      options: [{ label: 'No assigned', value: null }],
     },
     { name: 'isActive', label: 'Active', type: 'checkbox', default: true },
     { name: 'employeeId', label: '', type: 'hidden' },
@@ -131,24 +133,10 @@ export class EditEmpComponent {
       return;
     }
 
-    this.store
-      .select(selectEmps)
-      .pipe(
-        map((data) => {
-          return data.filter((v) => v.employeeId === id).find((v) => v);
-        })
-      )
-      .subscribe((data) => {
-        if (data) {
-          this.initialValue = {
-            ...data,
-          };
-        }
-      });
+    this.store.dispatch(ActionPosition.loadPositions());
+    this.store.dispatch(loadAccount());
 
     // Load positions
-    this.store.dispatch(ActionPosition.loadPositions());
-
     this.store
       .select(selectPositions)
       .pipe(
@@ -157,9 +145,9 @@ export class EditEmpComponent {
       )
       .subscribe((positions) => {
         const options = [
-          { label: 'Chưa xác định', value: null },
+          { label: 'No assigned', value: null },
           ...positions.map((pos) => ({
-            label: pos.name,
+            label: pos.key,
             value: pos.positionId,
           })),
         ];
@@ -169,12 +157,12 @@ export class EditEmpComponent {
         if (field) field.options = options;
       });
 
-    // load accounts
-    this.employeeService.availableAccounts().subscribe((res) => {
+    // load available accounts
+    this.employeeService.availableAccountsById(id).subscribe((res) => {
       let accounts = res.data;
 
       const options = [
-        { label: 'Chưa xác định', value: null },
+        { label: 'No assigned', value: null },
         ...accounts.map((a) => ({
           label: a.name,
           value: a.id,
@@ -184,6 +172,44 @@ export class EditEmpComponent {
       const field = this.accountField.find((f) => f.name === 'accountId');
       if (field) field.options = options;
     });
+
+    // load data
+    combineLatest([
+      this.store.select(selectEmps).pipe(
+        filter((e) => e.length > 0),
+        take(1)
+      ),
+      this.store.select(selectPositions).pipe(
+        filter((p) => p.length > 0),
+        take(1)
+      ),
+      this.store.select(selectAccounts).pipe(
+        filter((a) => a.length > 0),
+        take(1)
+      ),
+    ])
+      .pipe(
+        map(([employees, positions, accounts]) => {
+          const emp = employees.find((v) => v.employeeId === id);
+          const position = positions.find((p) => p.name === emp?.positionName);
+
+          const account = accounts.find((v) => v.username === emp?.accountName);
+
+          if (emp) {
+            return {
+              ...emp,
+              positionId: position?.positionId ?? null,
+              accountId: account?.accountId ?? null,
+            };
+          }
+          return null;
+        }),
+        filter((val) => !!val),
+        take(1)
+      )
+      .subscribe((data) => {
+        this.initialValue = data;
+      });
   }
 
   goBack() {
@@ -202,10 +228,14 @@ export class EditEmpComponent {
 
       data = {
         ...data,
-        positionId:
-          Number(data.positionId) === 0 ? null : Number(data.positionId),
+        positionId: data.positionId === null ? null : Number(data.positionId),
+        // Chỉ cập nhật accountId nếu khác giá trị ban đầu
         accountId:
-          Number(data.accountId) === 0 ? null : Number(data.positionId),
+          data.accountId !== this.initialValue.accountId
+            ? data.accountId === null
+              ? null
+              : Number(data.accountId)
+            : this.initialValue.accountId,
       };
 
       this.pendingData = data;

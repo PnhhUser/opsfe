@@ -8,6 +8,7 @@ import {
   ILoadEmployee,
   IUpdateEmployee,
 } from '../interfaces/employee.interface';
+import { IUser } from '../interfaces/auth.interface';
 
 @Injectable({ providedIn: 'root' })
 export class EmployeeService {
@@ -56,9 +57,18 @@ export class EmployeeService {
     );
   }
 
-  availableAccounts(): Observable<IResponseCustom<any[]>> {
-    return this.http.get<IResponseCustom<any[]>>(
+  availableAccounts(): Observable<IResponseCustom<IUser[]>> {
+    return this.http.get<IResponseCustom<IUser[]>>(
       `${this.apiUrl}/${this.path}/available`,
+      {
+        withCredentials: true,
+      }
+    );
+  }
+
+  availableAccountsById(empId: number): Observable<IResponseCustom<IUser[]>> {
+    return this.http.get<IResponseCustom<IUser[]>>(
+      `${this.apiUrl}/${this.path}/available/${empId}`,
       {
         withCredentials: true,
       }

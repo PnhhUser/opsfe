@@ -76,7 +76,7 @@ export class EditPositionComponent {
       default: null,
       options: [
         {
-          label: 'Chưa xác định',
+          label: 'No Assigned',
           value: null,
         },
       ],
@@ -161,9 +161,9 @@ export class EditPositionComponent {
             );
             if (field) {
               field.options = [
-                { label: 'Chưa xác định', value: null },
+                { label: 'No Assigned', value: null },
                 ...departments.map((d) => ({
-                  label: d.name,
+                  label: d.key,
                   value: d.departmentId,
                 })),
               ];
@@ -186,7 +186,7 @@ export class EditPositionComponent {
         data.departmentId !== null ? Number(data.departmentId) : null;
 
       const baseSalary =
-        data.baseSalary !== null ? Number(data.baseSalary) : null;
+        data.departmentId !== null ? Number(data.baseSalary) : null;
 
       data = { ...data, departmentId, baseSalary };
 

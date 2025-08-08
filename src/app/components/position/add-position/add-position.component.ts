@@ -66,7 +66,7 @@ export class AddPositionComponent {
       label: 'Department',
       type: 'select',
       default: null,
-      options: [{ label: 'Chưa xác định', value: null }],
+      options: [{ label: 'No Assigned', value: null }],
     },
     {
       name: 'baseSalary',
@@ -99,9 +99,9 @@ export class AddPositionComponent {
       )
       .subscribe((data) => {
         const departmentOptions = [
-          { label: 'Chưa xác định', value: null },
+          { label: 'No Assigned', value: null },
           ...data.map((d) => ({
-            label: d.name,
+            label: d.key,
             value: d.departmentId,
           })),
         ];
@@ -126,7 +126,10 @@ export class AddPositionComponent {
       const departmentId =
         data.departmentId !== null ? Number(data.departmentId) : null;
 
-      data = { ...data, departmentId: departmentId };
+      const baseSalary =
+        data.departmentId !== null ? Number(data.baseSalary) : null;
+
+      data = { ...data, departmentId, baseSalary };
 
       this.pendingData = data;
       this.showConfirm = true;

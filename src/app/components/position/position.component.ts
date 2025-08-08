@@ -16,10 +16,10 @@ import {
   selectPositionLoading,
   selectPositions,
 } from '../../store/positions/position.selector';
-import { DatetimeUtils } from '../../core/utils/datetime.utils';
 import { Observable } from 'rxjs';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { TableComponent } from '../../shared/components/table/table.component';
+import { Utils } from '../../core/utils/index.utils';
 
 @Component({
   selector: 'app-account',
@@ -47,7 +47,7 @@ export class PositionComponent {
       sortable: true,
       filter: true,
       minWidth: 100,
-      maxWidth: 200,
+      maxWidth: 250,
     },
     {
       field: 'key',
@@ -55,7 +55,7 @@ export class PositionComponent {
       sortable: true,
       filter: true,
       minWidth: 100,
-      maxWidth: 150,
+      maxWidth: 120,
     },
     {
       field: 'departmentName',
@@ -64,36 +64,62 @@ export class PositionComponent {
       filter: true,
       minWidth: 100,
       maxWidth: 200,
-      cellRenderer: ({ value }: ICellRendererParams) =>
-        !value ? 'chưa có' : value,
+      cellRenderer: (params: ICellRendererParams) => {
+        const value = params.value;
+
+        if (!value) {
+          return `
+      <span class="inline-flex justify-center rounded-md px-2 py-1 text-xs font-medium ring-1 bg-red-50 text-red-700 ring-red-700/10 ring-inset min-w-[90px]">
+        Not Assigned
+      </span>
+    `;
+        }
+
+        return value;
+      },
     },
     {
       field: 'baseSalary',
       headerName: 'Base salary',
       sortable: true,
       minWidth: 100,
-      maxWidth: 150,
-      cellRenderer: ({ value }: ICellRendererParams) => (!value ? 0 : value),
+      maxWidth: 120,
+      cellRenderer: ({ value }: ICellRendererParams) => {
+        return !value ? 0 : Utils.formatVND(Number(value));
+      },
     },
     {
       field: 'description',
       headerName: 'Description',
       sortable: true,
       minWidth: 140,
-      cellRenderer: ({ value }: ICellRendererParams) =>
-        !value ? 'Trống' : value,
+      cellRenderer: (params: ICellRendererParams) => {
+        const value = params.value;
+
+        if (!value) {
+          return `
+      <span class="inline-flex justify-center rounded-md px-2 py-1 text-xs font-medium ring-1 bg-red-50 text-red-700 ring-red-700/10 ring-inset min-w-[90px]">
+        No Description
+      </span>
+    `;
+        }
+
+        return value;
+      },
     },
     {
       field: 'createAt',
-      headerName: 'Create date',
+      headerName: 'Date Added',
       sortable: true,
-      hide: true,
+      minWidth: 100,
+      maxWidth: 110,
     },
     {
       field: 'updateAt',
-      headerName: 'Update date',
+      headerName: 'Date Editd',
       sortable: true,
-      hide: true,
+      minWidth: 100,
+      maxWidth: 110,
     },
   ];
   loading$;
@@ -104,10 +130,12 @@ export class PositionComponent {
   ) {
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
     this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : this.parentLabel;
-    this.prefixRouter = this.router.url;
+    this.prefixRouter = Utils.getFullRoutePath(this.activatedRoute.snapshot);
 
     this.positions$ = this.store.select(selectPositions);
-    this.loading$ = this.store.select(selectPositionLoading);
+    this.loading$ = Utils.withMinDelay(
+      this.store.select(selectPositionLoading)
+    );
   }
 
   ngOnInit() {
@@ -122,8 +150,8 @@ export class PositionComponent {
           departmentName: position.departmentName,
           baseSalary: position.baseSalary,
           description: position.description,
-          updateAt: DatetimeUtils.toLocaleDateString(position.updateAt),
-          createAt: DatetimeUtils.toLocaleDateString(position.createAt),
+          updateAt: Utils.toLocaleDateString(position.updateAt),
+          createAt: Utils.toLocaleDateString(position.createAt),
         };
       });
     });
@@ -151,5 +179,10 @@ export class PositionComponent {
     this.gridApi = gird.event.api;
   }
 
-  exportCSV() {}
+  exportCSV() {
+    if (!this.gridApi) return;
+    this.gridApi.exportDataAsCsv({
+      fileName: 'DanhSachViTri.csv',
+    });
+  }
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { PositionService } from '../../core/services/position.service';
 import { ActionPosition } from './position.actions';
-import { catchError, delay, exhaustMap, map, mergeMap, of } from 'rxjs';
+import { catchError, exhaustMap, map, mergeMap, of } from 'rxjs';
 
 @Injectable()
 export class PositionEffect {
@@ -26,7 +26,6 @@ export class PositionEffect {
       ofType(ActionPosition.loadPositions),
       mergeMap(() => {
         return this.positionService.getPositions().pipe(
-          delay(500),
           map((response) => {
             return ActionPosition.loadPositionsSuccess({
               positions: response.data,

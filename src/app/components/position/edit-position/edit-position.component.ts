@@ -1,8 +1,4 @@
-import {
-  selecDepartmentError,
-  selectDepartmentLoading,
-  selectDepartments,
-} from './../../../store/departments/department.selectors';
+import { selectDepartments } from './../../../store/departments/department.selectors';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,7 +6,6 @@ import { Store } from '@ngrx/store';
 import { PanelComponent } from '../../../shared/components/panel/panel.component';
 import { DynamicFormComponent } from '../../../shared/components/dynamic-form/dynamic-form.component';
 import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog/confirm-dialog.component';
-import { IUpdateDepertment } from '../../../core/interfaces/department.interface';
 import { IField } from '../../../core/interfaces/field.interface';
 import { filter, map, pairwise, take } from 'rxjs';
 import { ActionDepartment } from '../../../store/departments/department.actions';
@@ -19,10 +14,7 @@ import {
   selectPositionLoading,
   selectPositions,
 } from '../../../store/positions/position.selector';
-import {
-  ILoadPosition,
-  IUpdatePosition,
-} from '../../../core/interfaces/position.interface';
+import { IUpdatePosition } from '../../../core/interfaces/position.interface';
 import { ActionPosition } from '../../../store/positions/position.actions';
 
 @Component({
@@ -84,7 +76,8 @@ export class EditPositionComponent {
     {
       name: 'baseSalary',
       label: 'Base salary',
-      type: 'number',
+      type: 'text',
+      money: true,
     },
     { name: 'description', label: 'Description', type: 'textarea' },
     { name: 'positionId', label: '', type: 'hidden' },
@@ -152,6 +145,7 @@ export class EditPositionComponent {
             // Gán dữ liệu ban đầu vào form
             this.initialValue = {
               ...data,
+              baseSalary: Number(data.baseSalary),
               departmentId: departmentId, // <-- gán thẳng luôn
             };
 
@@ -186,9 +180,11 @@ export class EditPositionComponent {
         data.departmentId !== null ? Number(data.departmentId) : null;
 
       const baseSalary =
-        data.departmentId !== null ? Number(data.baseSalary) : null;
+        data.baseSalary !== null ? Number(data.baseSalary) : null;
 
       data = { ...data, departmentId, baseSalary };
+
+      console.log(data);
 
       this.pendingData = data;
       this.showConfirm = true;

@@ -7,18 +7,21 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import {
+  AbstractControl,
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
+  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { IField } from '../../../core/interfaces/field.interface';
+import { FormatMoneyDirective } from '../../directives/format-money.directive';
 
 @Component({
   selector: 'app-dynamic-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormatMoneyDirective],
   templateUrl: './dynamic-form.component.html',
 })
 export class DynamicFormComponent<T extends Record<string, any> = any>
@@ -52,7 +55,10 @@ export class DynamicFormComponent<T extends Record<string, any> = any>
     const group: Record<string, any> = {};
 
     this.fields.forEach((field) => {
-      const validators = field.required ? [Validators.required] : [];
+      const validators = [];
+
+      if (field.required) validators.push(Validators.required);
+      if (field.money) validators.push(this.moneyValidator());
 
       let defaultValue =
         this.initialValue[field.name as keyof T] ?? field.default;
@@ -89,5 +95,18 @@ export class DynamicFormComponent<T extends Record<string, any> = any>
     } else {
       this.form.markAllAsTouched();
     }
+  }
+
+  // Validator kiểm tra số tiền hợp lệ (ví dụ: 1.000, 10.000, ...)
+  moneyValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const val = control.value;
+      if (val === null || val === undefined || val.toString().trim() === '') {
+        return { invalidMoney: true };
+      }
+      // Bắt lỗi nếu có ký tự không phải số
+      const isValid = /^\d+$/.test(val.toString());
+      return isValid ? null : { invalidMoney: true };
+    };
   }
 }

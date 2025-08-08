@@ -23,8 +23,19 @@
     <!-- Text, Email, Password, Date -->
     <input
       *ngIf="
-        ['text', 'email', 'password', 'date', 'number'].includes(field.type)
+        ['text', 'email', 'password', 'date', 'number'].includes(field.type) &&
+        !field.money
       "
+      [type]="field.type"
+      [id]="field.name"
+      [formControlName]="field.name"
+      class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-indigo-300 focus:border-indigo-500"
+    />
+
+    <!-- money -->
+    <input
+      appFormatMoney
+      *ngIf="field.type === 'text' && field.money"
       [type]="field.type"
       [id]="field.name"
       [formControlName]="field.name"
@@ -73,9 +84,29 @@
       class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring focus:ring-indigo-300 focus:border-indigo-500 resize-none"
     ></textarea>
 
-    <!-- Validation -->
-    <div *ngIf="form.get(field.name)?.invalid && form.get(field.name)?.touched">
-      <small class="text-red-500">Trường {{ field.label }} là bắt buộc.</small>
+    <!-- Validation Container -->
+    <div
+      *ngIf="form.get(field.name)?.invalid && form.get(field.name)?.touched"
+      class="space-y-1"
+    >
+      <!-- Required Error -->
+      <small
+        *ngIf="form.get(field.name)?.hasError('required')"
+        class="block text-red-500"
+      >
+        Trường {{ field.label }} là bắt buộc.
+      </small>
+
+      <!-- Money Format Error -->
+      <small
+        *ngIf="
+          !form.get(field.name)?.hasError('required') &&
+          form.get(field.name)?.hasError('invalidMoney')
+        "
+        class="block text-red-500"
+      >
+        Định dạng {{ field.name }} không hợp lệ. (bắt buộc phải là số).
+      </small>
     </div>
   </div>
 

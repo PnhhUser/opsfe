@@ -127,7 +127,7 @@ export class AddPositionComponent {
         data.departmentId !== null ? Number(data.departmentId) : null;
 
       const baseSalary =
-        data.departmentId !== null ? Number(data.baseSalary) : null;
+        data.baseSalary !== null ? Number(data.baseSalary) : null;
 
       data = { ...data, departmentId, baseSalary };
 

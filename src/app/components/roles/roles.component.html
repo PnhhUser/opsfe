@@ -1,0 +1,46 @@
+<!-- Hiển thị loading -->
+<div *ngIf="loading$ | async" class="flex justify-center items-center h-[80vh]">
+  <app-loading />
+</div>
+
+<!-- Hiển thị nội dung sau khi loading xong -->
+<ng-container *ngIf="!(loading$ | async)">
+  <!-- Nút quay lại -->
+  <button
+    *ngIf="isParentRoute()"
+    (click)="goBack()"
+    class="flex items-center text-sm text-blue-600 hover:underline mb-4"
+  >
+    ← {{ parentLabel }}
+  </button>
+
+  <!-- Phần button -->
+  <div *ngIf="isParentRoute()" class="flex">
+    <app-crud
+      [selectedItem]="selectRoleItem"
+      name="role"
+      [prefixRouter]="prefixRouter"
+    />
+
+    <button
+      class="border-teal-700 text-teal-700 border text-sm font-medium rounded-md ms-2 shadow mb-4 px-4 hover:bg-teal-50"
+      (click)="exportCSV()"
+    >
+      Xuất CSV
+    </button>
+  </div>
+
+  <!-- Phần table -->
+  <div *ngIf="isParentRoute()">
+    <app-table
+      [columnField]="columnDefs"
+      [data]="(roles$ | async) || []"
+      itemId="id"
+      (rowSelected)="onRowSelect($event)"
+      (girdEvent)="onGirdEvent($event)"
+    ></app-table>
+  </div>
+
+  <!-- Router outlet -->
+  <router-outlet></router-outlet>
+</ng-container>

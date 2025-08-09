@@ -25,6 +25,10 @@ import { positionReducer } from './store/positions/position.reducer';
 import { PositionEffect } from './store/positions/position.effects';
 import { employeeReducer } from './store/employees/employee.reducer';
 import { EmployeeEffect } from './store/employees/employee.effects';
+import { permissionReducer } from './store/permission/permission.reducer';
+import { PermissionEffect } from './store/permission/permission.effect';
+import { roleReducer } from './store/role/role.reducer';
+import { RoleEffect } from './store/role/role.effect';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -37,6 +41,8 @@ export const appConfig: ApplicationConfig = {
       department: departmentReducer,
       position: positionReducer,
       employee: employeeReducer,
+      permission: permissionReducer,
+      role: roleReducer,
     }),
     provideEffects([
       AuthEffects,
@@ -44,6 +50,8 @@ export const appConfig: ApplicationConfig = {
       DepartmentEffect,
       PositionEffect,
       EmployeeEffect,
+      PermissionEffect,
+      RoleEffect,
     ]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
     {

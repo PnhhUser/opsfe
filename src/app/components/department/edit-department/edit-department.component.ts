@@ -42,7 +42,7 @@ import { ActionDepartment } from '../../../store/departments/department.actions'
 
     <app-confirm-dialog
       *ngIf="showConfirm"
-      [message]="'Bạn có chắc muốn thêm ' + pendingData?.name + ' không?'"
+      [message]="'Bạn có chắc muốn sửa không?'"
       [loading]="(loading$ | async) ?? false"
       (confirm)="confirmAdd()"
       (cancel)="cancelAdd()"

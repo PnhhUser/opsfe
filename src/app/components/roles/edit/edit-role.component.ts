@@ -1,21 +1,22 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Store } from '@ngrx/store';
 import { PanelComponent } from '../../../shared/components/panel/panel.component';
 import { DynamicFormComponent } from '../../../shared/components/dynamic-form/dynamic-form.component';
 import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog/confirm-dialog.component';
-import { IDepartment } from '../../../core/interfaces/department.interface';
+import { IUpdateRole } from '../../../core/interfaces/role.interface';
 import { IField } from '../../../core/interfaces/field.interface';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import {
-  selecDepartmentError,
-  selectDepartmentLoading,
-} from '../../../store/departments/department.selectors';
-import { ActionDepartment } from '../../../store/departments/department.actions';
-import { filter, pairwise, take } from 'rxjs';
+  selectRoles,
+  selectRolesError,
+  selectRolesLoading,
+} from '../../../store/role/role.selector';
+import { filter, map, pairwise, take } from 'rxjs';
+import { ActionRole } from '../../../store/role/role.actions';
 
 @Component({
-  selector: 'app-add-department',
+  selector: 'app-edit-role',
   standalone: true,
   imports: [
     CommonModule,
@@ -32,34 +33,38 @@ import { filter, pairwise, take } from 'rxjs';
 
     <app-panel [column]="1">
       <app-dynamic-form
-        [fields]="departmentField"
-        (formSubmit)="submitUserForm($event)"
+        [fields]="field"
+        [initialValue]="initialValue"
+        (formSubmit)="submitForm($event)"
         [messageError]="(error$ | async)?.message ?? messageError"
       ></app-dynamic-form>
     </app-panel>
 
     <app-confirm-dialog
       *ngIf="showConfirm"
-      [message]="'Bạn có chắc muốn thêm ' + pendingData?.name + ' không?'"
+      [message]="'Bạn có chắc muốn sửa không?'"
       [loading]="(loading$ | async) ?? false"
       (confirm)="confirmAdd()"
       (cancel)="cancelAdd()"
     ></app-confirm-dialog> `,
 })
-export class AddDepartmentComponent {
-  parentLabel = 'Back';
+export class EditRoleComponent {
+  parentLabel: string = 'Back';
+  showConfirm: boolean = false;
   messageError: string = '';
-  showConfirm = false;
-  pendingData: IDepartment | null = null;
+  pendingData: IUpdateRole | null = null;
 
-  loading$;
-  error$;
+  initialValue: Partial<IUpdateRole> = {};
 
-  departmentField: IField<keyof IDepartment>[] = [
+  field: IField<keyof IUpdateRole>[] = [
     { name: 'name', label: 'Name', type: 'text', required: true },
     { name: 'key', label: 'Key', type: 'text', required: true },
     { name: 'description', label: 'Description', type: 'textarea' },
+    { name: 'roleId', label: '', type: 'hidden' },
   ];
+
+  loading$;
+  error$;
 
   constructor(
     private router: Router,
@@ -67,17 +72,50 @@ export class AddDepartmentComponent {
     private store: Store
   ) {
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
-    this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : 'Back';
+    this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : this.parentLabel;
 
-    this.loading$ = this.store.select(selectDepartmentLoading);
-    this.error$ = this.store.select(selecDepartmentError);
+    this.loading$ = this.store.select(selectRolesLoading);
+    this.error$ = this.store.select(selectRolesError);
+  }
+
+  ngOnInit() {
+    const roleId = this.activatedRoute.snapshot.params?.['roleId'];
+
+    if (!roleId) {
+      this.messageError = 'Không tìm thấy ID phòng ban.';
+      return;
+    }
+
+    const id = Number.parseInt(roleId);
+    if (isNaN(id)) {
+      this.messageError = 'ID phòng ban không hợp lệ.';
+      return;
+    }
+
+    this.store
+      .select(selectRoles)
+      .pipe(
+        map((data) => {
+          return data.filter((v) => v.id === id).find((v) => v);
+        })
+      )
+      .subscribe((data) => {
+        if (data) {
+          this.initialValue = {
+            name: data.name,
+            key: data.key,
+            description: data.description,
+            roleId: data.id,
+          };
+        }
+      });
   }
 
   goBack() {
-    this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+    this.router.navigateByUrl('/module/access-control/roles');
   }
 
-  submitUserForm(data: IDepartment) {
+  submitForm(data: IUpdateRole) {
     try {
       if (data.key.includes(' ')) {
         throw new Error('Key must not contain spaces');
@@ -85,6 +123,8 @@ export class AddDepartmentComponent {
 
       this.pendingData = data;
       this.showConfirm = true;
+
+      console.log(data);
     } catch (e) {
       if (e instanceof Error) {
         this.messageError = e.message;
@@ -97,9 +137,7 @@ export class AddDepartmentComponent {
   confirmAdd() {
     if (!this.pendingData) return;
 
-    this.store.dispatch(
-      ActionDepartment.addDeparment({ department: this.pendingData })
-    );
+    this.store.dispatch(ActionRole.editRole({ role: this.pendingData }));
 
     // Đợi kết quả xử lý sau khi dispatch
     this.loading$
@@ -113,7 +151,7 @@ export class AddDepartmentComponent {
           this.showConfirm = false;
           if (!error) {
             this.pendingData = null;
-            this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+            this.router.navigateByUrl('/module/access-control/roles');
           }
         });
       });

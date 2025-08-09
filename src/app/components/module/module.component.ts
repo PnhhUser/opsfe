@@ -16,6 +16,18 @@ export class ModuleComponent {
       name: 'HR Management',
       url: 'human-resources',
     },
+    {
+      name: 'Access Control',
+      url: 'access-control',
+    },
+    {
+      name: 'Customers Management',
+      url: 'customers-management',
+    },
+    {
+      name: 'Storagies',
+      url: 'storagies',
+    },
   ];
 
   constructor(public router: Router, private activatedRoute: ActivatedRoute) {}

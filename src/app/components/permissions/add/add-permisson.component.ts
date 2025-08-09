@@ -1,27 +1,25 @@
+import { selectPermissionError } from './../../../store/permission/permission.selector';
+import { DynamicFormComponent } from './../../../shared/components/dynamic-form/dynamic-form.component';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { IPermission } from '../../../core/interfaces/permission.interface';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { PanelComponent } from '../../../shared/components/panel/panel.component';
-import { DynamicFormComponent } from '../../../shared/components/dynamic-form/dynamic-form.component';
 import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog/confirm-dialog.component';
-import { IDepartment } from '../../../core/interfaces/department.interface';
-import { IField } from '../../../core/interfaces/field.interface';
-import {
-  selecDepartmentError,
-  selectDepartmentLoading,
-} from '../../../store/departments/department.selectors';
-import { ActionDepartment } from '../../../store/departments/department.actions';
+import { selectPermissionLoading } from '../../../store/permission/permission.selector';
+import { ActionPermission } from '../../../store/permission/permission.actions';
 import { filter, pairwise, take } from 'rxjs';
+import { IField } from '../../../core/interfaces/field.interface';
 
 @Component({
-  selector: 'app-add-department',
+  selector: 'app-add-permission',
   standalone: true,
   imports: [
     CommonModule,
     PanelComponent,
-    DynamicFormComponent,
     ConfirmDialogComponent,
+    DynamicFormComponent,
   ],
   template: `<button
       (click)="goBack()"
@@ -32,7 +30,7 @@ import { filter, pairwise, take } from 'rxjs';
 
     <app-panel [column]="1">
       <app-dynamic-form
-        [fields]="departmentField"
+        [fields]="permissonField"
         (formSubmit)="submitUserForm($event)"
         [messageError]="(error$ | async)?.message ?? messageError"
       ></app-dynamic-form>
@@ -46,16 +44,16 @@ import { filter, pairwise, take } from 'rxjs';
       (cancel)="cancelAdd()"
     ></app-confirm-dialog> `,
 })
-export class AddDepartmentComponent {
+export class AddPermissionComponent {
   parentLabel = 'Back';
   messageError: string = '';
   showConfirm = false;
-  pendingData: IDepartment | null = null;
+  pendingData: IPermission | null = null;
 
   loading$;
   error$;
 
-  departmentField: IField<keyof IDepartment>[] = [
+  permissonField: IField<keyof IPermission>[] = [
     { name: 'name', label: 'Name', type: 'text', required: true },
     { name: 'key', label: 'Key', type: 'text', required: true },
     { name: 'description', label: 'Description', type: 'textarea' },
@@ -69,15 +67,15 @@ export class AddDepartmentComponent {
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
     this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : 'Back';
 
-    this.loading$ = this.store.select(selectDepartmentLoading);
-    this.error$ = this.store.select(selecDepartmentError);
+    this.loading$ = this.store.select(selectPermissionLoading);
+    this.error$ = this.store.select(selectPermissionError);
   }
 
   goBack() {
     this.router.navigate(['../'], { relativeTo: this.activatedRoute });
   }
 
-  submitUserForm(data: IDepartment) {
+  submitUserForm(data: IPermission) {
     try {
       if (data.key.includes(' ')) {
         throw new Error('Key must not contain spaces');
@@ -98,7 +96,7 @@ export class AddDepartmentComponent {
     if (!this.pendingData) return;
 
     this.store.dispatch(
-      ActionDepartment.addDeparment({ department: this.pendingData })
+      ActionPermission.addPermission({ permission: this.pendingData })
     );
 
     // Đợi kết quả xử lý sau khi dispatch

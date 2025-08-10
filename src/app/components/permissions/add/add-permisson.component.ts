@@ -38,10 +38,15 @@ import { IField } from '../../../core/interfaces/field.interface';
 
     <app-confirm-dialog
       *ngIf="showConfirm"
+      [visible]="showConfirm"
+      [title]="'Xác nhận thêm quyền'"
       [message]="'Bạn có chắc muốn thêm ' + pendingData?.name + ' không?'"
       [loading]="(loading$ | async) ?? false"
-      (confirm)="confirmAdd()"
-      (cancel)="cancelAdd()"
+      [loadingText]="'Đang thêm quyền...'"
+      confirmText="Đồng ý"
+      cancelText="Hủy bỏ"
+      (confirm)="confirm()"
+      (cancel)="cancel()"
     ></app-confirm-dialog> `,
 })
 export class AddPermissionComponent {
@@ -92,7 +97,7 @@ export class AddPermissionComponent {
     }
   }
 
-  confirmAdd() {
+  confirm() {
     if (!this.pendingData) return;
 
     this.store.dispatch(
@@ -117,7 +122,7 @@ export class AddPermissionComponent {
       });
   }
 
-  cancelAdd() {
+  cancel() {
     this.showConfirm = false;
     this.pendingData = null;
   }

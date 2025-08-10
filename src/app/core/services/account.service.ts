@@ -8,6 +8,7 @@ import {
   IUpdateAccount,
 } from '../interfaces/account.interface';
 import { environment } from '../../../environments/environment';
+import { ILoadRoles } from '../interfaces/role.interface';
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
@@ -58,6 +59,15 @@ export class AccountService {
   removeAccount(accountId: number): Observable<IResponseCustom<null>> {
     return this.http.delete<IResponseCustom<null>>(
       `${this.apiUrl}/accounts/${accountId}`,
+      {
+        withCredentials: true,
+      }
+    );
+  }
+
+  getRolesForSelect(): Observable<IResponseCustom<ILoadRoles[]>> {
+    return this.http.get<IResponseCustom<ILoadRoles[]>>(
+      `${this.apiUrl}/accounts/for-selection`,
       {
         withCredentials: true,
       }

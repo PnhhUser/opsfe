@@ -1,10 +1,12 @@
 import { RoleEnum } from '../enum/role.enum';
 import { IError } from './error.interface';
+import { IRole } from './role.interface';
 
 export interface ILoadAccount {
   accountId: number;
   createdAt: string;
   roleId: RoleEnum;
+  role?: IRole;
   isActive: boolean;
   lastseen: string;
   updatedAt: string;

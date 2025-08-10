@@ -44,10 +44,15 @@ import { ActionPosition } from '../../../store/positions/position.actions';
 
     <app-confirm-dialog
       *ngIf="showConfirm"
+      [visible]="showConfirm"
+      [title]="'Xác nhận thêm nhân viên'"
       [message]="'Bạn có chắc muốn thêm ' + pendingData?.fullName + ' không?'"
       [loading]="(loading$ | async) ?? false"
-      (confirm)="confirmAdd()"
-      (cancel)="cancelAdd()"
+      [loadingText]="'Đang thêm nhân viên...'"
+      confirmText="Đồng ý"
+      cancelText="Hủy bỏ"
+      (confirm)="confirm()"
+      (cancel)="cancel()"
     ></app-confirm-dialog> `,
 })
 export class AddEmpComponent {
@@ -183,7 +188,7 @@ export class AddEmpComponent {
     }
   }
 
-  confirmAdd() {
+  confirm() {
     if (!this.pendingData) return;
 
     this.store.dispatch(
@@ -207,7 +212,7 @@ export class AddEmpComponent {
       });
   }
 
-  cancelAdd() {
+  cancel() {
     this.showConfirm = false;
     this.pendingData = null;
   }

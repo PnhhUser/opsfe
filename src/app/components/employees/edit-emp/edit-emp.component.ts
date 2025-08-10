@@ -48,10 +48,15 @@ import { loadAccount } from '../../../store/accounts/account.actions';
 
     <app-confirm-dialog
       *ngIf="showConfirm"
-      [message]="'Bạn có chắc muốn thêm ' + pendingData?.fullName + ' Không ?'"
+      [visible]="showConfirm"
+      [title]="'Xác nhận sửa nhân viên'"
+      [message]="'Bạn có chắc muốn thêm ' + initialValue.fullName + ' không?'"
       [loading]="(loading$ | async) ?? false"
-      (confirm)="confirmAdd()"
-      (cancel)="cancelAdd()"
+      [loadingText]="'Đang thêm nhân viên...'"
+      confirmText="Đồng ý"
+      cancelText="Hủy bỏ"
+      (confirm)="confirm()"
+      (cancel)="cancel()"
     ></app-confirm-dialog> `,
 })
 export class EditEmpComponent {
@@ -249,7 +254,7 @@ export class EditEmpComponent {
     }
   }
 
-  confirmAdd() {
+  confirm() {
     if (!this.pendingData) return;
 
     this.store.dispatch(
@@ -274,7 +279,7 @@ export class EditEmpComponent {
       });
   }
 
-  cancelAdd() {
+  cancel() {
     this.showConfirm = false;
     this.pendingData = null;
   }

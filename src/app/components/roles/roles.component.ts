@@ -15,10 +15,13 @@ import { Utils } from '../../core/utils/index.utils';
 import { Store } from '@ngrx/store';
 import {
   selectRoles,
+  selectRolesError,
   selectRolesLoading,
 } from '../../store/role/role.selector';
 import { ActionRole } from '../../store/role/role.actions';
-import { filter, take, tap } from 'rxjs';
+import { filter, Subject, take, takeUntil, tap } from 'rxjs';
+import { Toast } from 'ngx-toastr';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-roles',
@@ -72,12 +75,16 @@ export class RolesComponent {
     },
   ];
 
+  destroy$ = new Subject<void>();
+
   roles$;
+  error$;
 
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private store: Store
+    private store: Store,
+    private toastService: ToastService
   ) {
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
     this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : this.parentLabel;
@@ -86,6 +93,19 @@ export class RolesComponent {
     this.loading$ = Utils.withMinDelay(this.store.select(selectRolesLoading));
 
     this.roles$ = this.store.select(selectRoles);
+
+    this.error$ = this.store
+      .select(selectRolesError)
+      .pipe(
+        tap((error) => {
+          if (error) {
+            this.toastService.error(`${error.message}`, 'Role Error');
+            this.store.dispatch(ActionRole.resetAccountError());
+          }
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
   }
 
   ngOnInit() {
@@ -110,4 +130,9 @@ export class RolesComponent {
   }
 
   exportCSV() {}
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

@@ -42,10 +42,15 @@ import { ActionDepartment } from '../../../store/departments/department.actions'
 
     <app-confirm-dialog
       *ngIf="showConfirm"
+      [visible]="showConfirm"
+      [title]="'Xác nhận thêm vị trí'"
       [message]="'Bạn có chắc muốn thêm ' + pendingData?.name + ' không?'"
       [loading]="(loading$ | async) ?? false"
-      (confirm)="confirmAdd()"
-      (cancel)="cancelAdd()"
+      [loadingText]="'Đang thêm vị trí...'"
+      confirmText="Đồng ý"
+      cancelText="Hủy bỏ"
+      (confirm)="confirm()"
+      (cancel)="cancel()"
     ></app-confirm-dialog> `,
 })
 export class AddPositionComponent {
@@ -143,7 +148,7 @@ export class AddPositionComponent {
     }
   }
 
-  confirmAdd() {
+  confirm() {
     if (!this.pendingData) return;
 
     this.store.dispatch(
@@ -168,7 +173,7 @@ export class AddPositionComponent {
       });
   }
 
-  cancelAdd() {
+  cancel() {
     this.showConfirm = false;
     this.pendingData = null;
   }

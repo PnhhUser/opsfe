@@ -91,8 +91,6 @@ export class PermissionsComponent {
     this.store
       .select(selectPermission)
       .subscribe((data: ILoadPermissions[]) => {
-        console.log(data);
-
         this.permissions = data.map((d) => ({ ...d }));
       });
   }

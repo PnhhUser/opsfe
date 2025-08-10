@@ -40,10 +40,15 @@ import { filter, pairwise, take } from 'rxjs';
 
     <app-confirm-dialog
       *ngIf="showConfirm"
+      [visible]="showConfirm"
+      [title]="'Xác nhận thêm phòng ban'"
       [message]="'Bạn có chắc muốn thêm ' + pendingData?.name + ' không?'"
       [loading]="(loading$ | async) ?? false"
-      (confirm)="confirmAdd()"
-      (cancel)="cancelAdd()"
+      [loadingText]="'Đang thêm phòng ban...'"
+      confirmText="Đồng ý"
+      cancelText="Hủy bỏ"
+      (confirm)="confirm()"
+      (cancel)="cancel()"
     ></app-confirm-dialog> `,
 })
 export class AddDepartmentComponent {
@@ -94,7 +99,7 @@ export class AddDepartmentComponent {
     }
   }
 
-  confirmAdd() {
+  confirm() {
     if (!this.pendingData) return;
 
     this.store.dispatch(
@@ -119,7 +124,7 @@ export class AddDepartmentComponent {
       });
   }
 
-  cancelAdd() {
+  cancel() {
     this.showConfirm = false;
     this.pendingData = null;
   }

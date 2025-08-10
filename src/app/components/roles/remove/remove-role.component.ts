@@ -15,10 +15,15 @@ import { ActionRole } from '../../../store/role/role.actions';
   selector: 'app-remove-role',
   standalone: true,
   imports: [CommonModule, ConfirmDialogComponent],
-  template: `<app-confirm-dialog
+  template: ` <app-confirm-dialog
     *ngIf="showConfirm"
+    [visible]="showConfirm"
+    [title]="'Xác nhận xóa vai trò'"
     [message]="'Bạn có chắc muốn xóa ' + pendingData?.name + ' không?'"
     [loading]="(loading$ | async) ?? false"
+    [loadingText]="'Đang xóa role...'"
+    confirmText="Đồng ý"
+    cancelText="Hủy bỏ"
     (confirm)="confirm()"
     (cancel)="cancel()"
   ></app-confirm-dialog>`,

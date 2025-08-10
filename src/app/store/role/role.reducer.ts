@@ -84,5 +84,11 @@ export const roleReducer = createReducer(
     ...state,
     loading: false,
     error,
+  })),
+
+  // reset error
+  on(ActionRole.resetAccountError, (state) => ({
+    ...state,
+    error: null, // Reset error về null
   }))
 );

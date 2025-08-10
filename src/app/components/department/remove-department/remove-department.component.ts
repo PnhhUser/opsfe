@@ -17,8 +17,13 @@ import { ActionDepartment } from '../../../store/departments/department.actions'
   imports: [CommonModule, ConfirmDialogComponent],
   template: `<app-confirm-dialog
     *ngIf="showConfirm"
+    [visible]="showConfirm"
+    [title]="'Xác nhận xóa phòng ban'"
     [message]="'Bạn có chắc muốn xóa ' + pendingData?.name + ' không?'"
     [loading]="(loading$ | async) ?? false"
+    [loadingText]="'Đang xóa...'"
+    confirmText="Đồng ý"
+    cancelText="Hủy bỏ"
     (confirm)="confirm()"
     (cancel)="cancel()"
   ></app-confirm-dialog>`,

@@ -17,8 +17,15 @@ import { ActionEmployee } from '../../../store/employees/employee.actions';
   imports: [CommonModule, ConfirmDialogComponent],
   template: `<app-confirm-dialog
     *ngIf="showConfirm"
-    [message]="'Bạn có chắc muốn xóa ' + pendingData?.fullName + ' không ?'"
+    [visible]="showConfirm"
+    [title]="'Xác nhận xóa nhân viên'"
+    [message]="
+      'Bạn có chắc muốn thêm nhân viên ' + pendingData?.fullName + ' không?'
+    "
     [loading]="(loading$ | async) ?? false"
+    [loadingText]="'Đang thêm nhân viên...'"
+    confirmText="Đồng ý"
+    cancelText="Hủy bỏ"
     (confirm)="confirm()"
     (cancel)="cancel()"
   ></app-confirm-dialog>`,

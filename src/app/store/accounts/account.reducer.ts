@@ -83,5 +83,11 @@ export const accountReducer = createReducer(
     ...state,
     loading: false,
     error,
+  })),
+
+  // reset error
+  on(AccountAction.resetAccountError, (state) => ({
+    ...state,
+    error: null, // Reset error về null
   }))
 );

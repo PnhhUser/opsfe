@@ -1,6 +1,6 @@
 import { Store } from '@ngrx/store';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DynamicFormComponent } from '../../../shared/components/dynamic-form/dynamic-form.component';
 import { IField } from '../../../core/interfaces/field.interface';
 import { PanelComponent } from '../../../shared/components/panel/panel.component';
@@ -9,11 +9,13 @@ import { ConfirmDialogComponent } from '../../../shared/components/dialog/confir
 import { RoleEnum } from '../../../core/enum/role.enum';
 import { IAccount } from '../../../core/interfaces/account.interface';
 import * as AccountActions from '../../../store/accounts/account.actions';
-import { filter, pairwise, take } from 'rxjs';
+import { filter, pairwise, Subject, take, takeUntil } from 'rxjs';
 import {
   selectAccountError,
   selectAccountsLoading,
 } from '../../../store/accounts/account.selectors';
+import { RoleService } from '../../../core/services/role.service';
+import { AccountService } from '../../../core/services/account.service';
 
 @Component({
   standalone: true,
@@ -26,7 +28,7 @@ import {
     ConfirmDialogComponent,
   ],
 })
-export class AddAccountComponent {
+export class AddAccountComponent implements OnInit, OnDestroy {
   parentLabel = 'Back';
   messageError: string = '';
   showConfirm = false;
@@ -39,10 +41,7 @@ export class AddAccountComponent {
       label: 'Role',
       type: 'select',
       default: RoleEnum.user,
-      options: [
-        { label: 'Admin', value: RoleEnum.admin },
-        { label: 'User', value: RoleEnum.user },
-      ],
+      options: [],
     },
     {
       name: 'isActive',
@@ -55,10 +54,13 @@ export class AddAccountComponent {
   loading$;
   error$;
 
+  private destroy$ = new Subject<void>();
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private store: Store
+    private store: Store,
+    private accountService: AccountService
   ) {
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
     this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : 'Back';
@@ -66,6 +68,25 @@ export class AddAccountComponent {
     this.loading$ = this.store.select(selectAccountsLoading);
 
     this.error$ = this.store.select(selectAccountError);
+  }
+
+  ngOnInit() {
+    // load select role
+    this.accountService
+      .getRolesForSelect()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res) => {
+        let roles = res.data;
+
+        const options = [
+          ...roles.map((a) => ({
+            label: a.key,
+            value: a.id,
+          })),
+        ];
+        const field = this.accountField.find((f) => f.name === 'roleId');
+        if (field) field.options = options;
+      });
   }
 
   goBack() {
@@ -125,5 +146,10 @@ export class AddAccountComponent {
   cancelAdd() {
     this.showConfirm = false;
     this.pendingData = null;
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

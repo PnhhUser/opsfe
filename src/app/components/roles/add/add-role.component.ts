@@ -40,8 +40,13 @@ import { filter, pairwise, take } from 'rxjs';
 
     <app-confirm-dialog
       *ngIf="showConfirm"
+      [visible]="showConfirm"
+      [title]="'Xác nhận thêm vai trò'"
       [message]="'Bạn có chắc muốn thêm ' + pendingData?.name + ' không?'"
       [loading]="(loading$ | async) ?? false"
+      [loadingText]="'Đang thêm role...'"
+      confirmText="Đồng ý"
+      cancelText="Hủy bỏ"
       (confirm)="confirmAdd()"
       (cancel)="cancelAdd()"
     ></app-confirm-dialog> `,

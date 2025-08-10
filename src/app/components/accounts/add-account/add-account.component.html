@@ -15,8 +15,15 @@
 
 <app-confirm-dialog
   *ngIf="showConfirm"
-  [message]="'Bạn có chắc muốn thêm ' + pendingData?.username + ' không?'"
+  [visible]="showConfirm"
+  [title]="'Xác nhận thêm người dùng'"
+  [message]="
+    'Bạn có chắc muốn thêm ' + (pendingData?.username || '') + ' không?'
+  "
   [loading]="(loading$ | async) ?? false"
+  [loadingText]="'Đang thêm người dùng...'"
+  confirmText="Đồng ý"
+  cancelText="Hủy bỏ"
   (confirm)="confirmAdd()"
   (cancel)="cancelAdd()"
 ></app-confirm-dialog>

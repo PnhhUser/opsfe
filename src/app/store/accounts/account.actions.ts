@@ -66,3 +66,6 @@ export const removeAccountFailure = createAction(
   '[Account] Remove account failure',
   props<{ error: IError }>()
 );
+
+// reset error account
+export const resetAccountError = createAction('[Account] Reset Error');

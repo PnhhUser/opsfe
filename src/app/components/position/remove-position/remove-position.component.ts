@@ -18,8 +18,13 @@ import { ActionPosition } from '../../../store/positions/position.actions';
   imports: [CommonModule, ConfirmDialogComponent],
   template: `<app-confirm-dialog
     *ngIf="showConfirm"
+    [visible]="showConfirm"
+    [title]="'Xác nhận xóa vị trí'"
     [message]="'Bạn có chắc muốn xóa ' + pendingData?.name + ' không?'"
     [loading]="(loading$ | async) ?? false"
+    [loadingText]="'Đang xóa vị trí...'"
+    confirmText="Đồng ý"
+    cancelText="Hủy bỏ"
     (confirm)="confirm()"
     (cancel)="cancel()"
   ></app-confirm-dialog>`,

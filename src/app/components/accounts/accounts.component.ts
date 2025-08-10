@@ -15,12 +15,15 @@ import { RoleEnum } from '../../core/enum/role.enum';
 import { Store } from '@ngrx/store';
 import * as AccountActions from '../../store/accounts/account.actions';
 import {
+  selectAccountError,
   selectAccounts,
   selectAccountsLoading,
 } from '../../store/accounts/account.selectors';
 import { TableComponent } from '../../shared/components/table/table.component';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { Utils } from '../../core/utils/index.utils';
+import { Subject, takeUntil, tap } from 'rxjs';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-account',
@@ -42,19 +45,21 @@ export class AccountComponent {
 
   accounts$;
   loading$;
+  error$;
 
   // Định nghĩa các cột hiển thị trong AG Grid
   columnDefs: ColDef<ILoadAccount>[] = [
     { field: 'username', sortable: true, filter: true, minWidth: 100 },
     {
-      field: 'roleId',
+      field: 'role',
       headerName: 'Role',
       sortable: true,
       cellRenderer: (params: ICellRendererParams) => {
-        const roleId = Number.parseInt(params.value);
-        const isAdmin = roleId === RoleEnum.admin;
+        const role = params.value;
 
-        const label = isAdmin ? 'Admin' : 'User';
+        const isAdmin = role?.['key'] === 'admin';
+
+        const label = isAdmin ? 'Admin' : role?.['key'];
         const badgeClass = !isAdmin
           ? 'bg-blue-50 text-blue-700 ring-blue-700/10'
           : 'bg-red-50 text-red-700 ring-red-700/10';
@@ -132,11 +137,14 @@ export class AccountComponent {
   // Dữ liệu hàng cho bảng
   accounts: ILoadAccount[] = [];
 
+  destroy$ = new Subject<void>();
+
   // Inject các service cần thiết
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private store: Store
+    private store: Store,
+    private toastService: ToastService
   ) {
     // Lấy breadcrumb từ route cha để hiển thị label quay về
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
@@ -147,6 +155,19 @@ export class AccountComponent {
     this.loading$ = Utils.withMinDelay(
       this.store.select(selectAccountsLoading)
     );
+
+    this.error$ = this.store
+      .select(selectAccountError)
+      .pipe(
+        tap((error) => {
+          if (error) {
+            this.toastService.error(`${error.message}`, 'Account Error');
+            this.store.dispatch(AccountActions.resetAccountError());
+          }
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
   }
 
   // Gọi khi component được khởi tạo
@@ -156,6 +177,7 @@ export class AccountComponent {
       this.accounts = accounts.map((account: ILoadAccount) => ({
         accountId: account.accountId,
         roleId: account.roleId,
+        role: account.role,
         username: account.username,
         isActive: account.isActive,
         createdAt: Utils.toLocaleDateString(account.createdAt),
@@ -203,5 +225,10 @@ export class AccountComponent {
     this.gridApi.exportDataAsCsv({
       fileName: 'DanhSachTaiKhoan.csv',
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

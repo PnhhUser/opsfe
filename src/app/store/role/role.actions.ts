@@ -64,6 +64,9 @@ const removeRoleFailure = createAction(
   props<{ error: IError }>()
 );
 
+// reset error account
+const resetAccountError = createAction('[Role] Reset Error');
+
 export const ActionRole = {
   loadRoles,
   loadRolesSuccess,
@@ -80,4 +83,6 @@ export const ActionRole = {
   removeRole,
   removeRoleSuccess,
   removeRoleFailure,
+
+  resetAccountError,
 };

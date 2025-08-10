@@ -10,14 +10,19 @@
     [fields]="accountField"
     [initialValue]="initialValue"
     (formSubmit)="submitUserForm($event)"
-    [messageError]="(error$ | async)?.message ?? messageError"
+    [messageError]="(error$ | async)?.message || messageError"
   ></app-dynamic-form>
 </app-panel>
 
 <app-confirm-dialog
   *ngIf="showConfirm"
-  [message]="'Bạn có chắc muốn sửa không?'"
+  [visible]="showConfirm"
+  [title]="'Xác nhận sửa người dùng'"
+  [message]="'Bạn có chắc muốn sửa ' + initialValue.username + ' không?'"
   [loading]="(loading$ | async) ?? false"
+  [loadingText]="'Đang sửa người dùng...'"
+  confirmText="Đồng ý"
+  cancelText="Hủy bỏ"
   (confirm)="confirmEdit()"
   (cancel)="cancelEdit()"
 ></app-confirm-dialog>

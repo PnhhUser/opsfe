@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { PanelComponent } from '../../../shared/components/panel/panel.component';
 import { DynamicFormComponent } from '../../../shared/components/dynamic-form/dynamic-form.component';
 import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog/confirm-dialog.component';
@@ -13,8 +13,9 @@ import {
   selectAccountError,
   selectAccountsLoading,
 } from '../../../store/accounts/account.selectors';
-import { filter, pairwise, take } from 'rxjs';
+import { filter, pairwise, Subject, take, takeUntil } from 'rxjs';
 import { editAccount } from '../../../store/accounts/account.actions';
+import * as ActionAccount from '../../../store/accounts/account.actions';
 
 @Component({
   selector: 'app-edit-account',
@@ -34,6 +35,7 @@ export class EditAccountComponent {
 
   loading$;
   error$;
+  private destroy$ = new Subject<void>();
 
   showConfirm = false;
   pendingData: IUpdateAccount | null = null;
@@ -52,10 +54,7 @@ export class EditAccountComponent {
       label: 'Role',
       type: 'select',
       default: RoleEnum.user,
-      options: [
-        { label: 'Admin', value: RoleEnum.admin },
-        { label: 'User', value: RoleEnum.user },
-      ],
+      options: [],
     },
     {
       name: 'isActive',
@@ -70,12 +69,15 @@ export class EditAccountComponent {
     },
   ];
 
+  hasRestError = false;
+
   // Inject các service cần thiết
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private accountService: AccountService,
-    private store: Store
+    private store: Store,
+    private cdRef: ChangeDetectorRef
   ) {
     // Lấy breadcrumb từ route cha để hiển thị label quay về
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
@@ -102,19 +104,31 @@ export class EditAccountComponent {
     this.accountService.getAccount(Number.parseInt(accountId)).subscribe({
       next: (res) => {
         const raw = res.data;
-
-        this.initialValue = {
-          username: raw.username,
-          roleId:
-            raw.roleId === RoleEnum.admin ? RoleEnum.admin : RoleEnum.user,
-          accountId: raw.accountId,
-          isActive: raw.isActive,
-        };
+        this.initialValue = raw;
       },
       error: (err) => {
         this.messageError = 'Không thể tải thông tin tài khoản.';
       },
     });
+
+    // load select role
+    this.accountService
+      .getRolesForSelect()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res) => {
+        let roles = res.data;
+
+        const options = [
+          ...roles.map((a) => ({
+            label: a.key,
+            value: a.id,
+          })),
+        ];
+
+        const field = this.accountField.find((f) => f.name === 'roleId');
+
+        if (field) field.options = options;
+      });
   }
 
   // Xử lý quay lại route cha
@@ -146,6 +160,7 @@ export class EditAccountComponent {
   confirmEdit() {
     if (!this.pendingData) return;
 
+    this.hasRestError = true;
     this.store.dispatch(editAccount({ account: this.pendingData }));
 
     // Đợi kết quả xử lý sau khi dispatch

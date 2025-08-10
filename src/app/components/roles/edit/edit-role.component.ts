@@ -42,10 +42,15 @@ import { ActionRole } from '../../../store/role/role.actions';
 
     <app-confirm-dialog
       *ngIf="showConfirm"
-      [message]="'Bạn có chắc muốn sửa không?'"
+      [visible]="showConfirm"
+      [title]="'Xác nhận sửa vai trò'"
+      [message]="'Bạn có chắc muốn sửa ' + initialValue.name + ' không?'"
       [loading]="(loading$ | async) ?? false"
-      (confirm)="confirmAdd()"
-      (cancel)="cancelAdd()"
+      [loadingText]="'Đang sửa role...'"
+      confirmText="Đồng ý"
+      cancelText="Hủy bỏ"
+      (confirm)="confirm()"
+      (cancel)="cancel()"
     ></app-confirm-dialog> `,
 })
 export class EditRoleComponent {
@@ -123,8 +128,6 @@ export class EditRoleComponent {
 
       this.pendingData = data;
       this.showConfirm = true;
-
-      console.log(data);
     } catch (e) {
       if (e instanceof Error) {
         this.messageError = e.message;
@@ -134,7 +137,7 @@ export class EditRoleComponent {
     }
   }
 
-  confirmAdd() {
+  confirm() {
     if (!this.pendingData) return;
 
     this.store.dispatch(ActionRole.editRole({ role: this.pendingData }));
@@ -157,7 +160,7 @@ export class EditRoleComponent {
       });
   }
 
-  cancelAdd() {
+  cancel() {
     this.showConfirm = false;
     this.pendingData = null;
   }

@@ -42,11 +42,16 @@ import { ActionPermission } from '../../../store/permission/permission.actions';
 
     <app-confirm-dialog
       *ngIf="showConfirm"
-      [message]="'Bạn có chắc muốn sửa không?'"
+      [visible]="showConfirm"
+      [title]="'Xác nhận sửa quyền'"
+      [message]="'Bạn có chắc muốn sửa ' + initialValue.name + ' không?'"
       [loading]="(loading$ | async) ?? false"
-      (confirm)="confirmAdd()"
-      (cancel)="cancelAdd()"
-    ></app-confirm-dialog> `,
+      [loadingText]="'Đang thêm quyền...'"
+      confirmText="Đồng ý"
+      cancelText="Hủy bỏ"
+      (confirm)="confirm()"
+      (cancel)="cancel()"
+    ></app-confirm-dialog>`,
 })
 export class EditPermissionComponent {
   parentLabel: string = 'Back';
@@ -123,8 +128,6 @@ export class EditPermissionComponent {
 
       this.pendingData = data;
       this.showConfirm = true;
-
-      console.log(data);
     } catch (e) {
       if (e instanceof Error) {
         this.messageError = e.message;
@@ -134,7 +137,7 @@ export class EditPermissionComponent {
     }
   }
 
-  confirmAdd() {
+  confirm() {
     if (!this.pendingData) return;
 
     this.store.dispatch(
@@ -159,7 +162,7 @@ export class EditPermissionComponent {
       });
   }
 
-  cancelAdd() {
+  cancel() {
     this.showConfirm = false;
     this.pendingData = null;
   }

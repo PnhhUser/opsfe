@@ -15,8 +15,13 @@ import { ActionPermission } from '../../../store/permission/permission.actions';
   imports: [CommonModule, ConfirmDialogComponent],
   template: `<app-confirm-dialog
     *ngIf="showConfirm"
+    [visible]="showConfirm"
+    [title]="'Xác nhận xóa quyền'"
     [message]="'Bạn có chắc muốn xóa ' + pendingData?.name + ' không?'"
     [loading]="(loading$ | async) ?? false"
+    [loadingText]="'Đang xóa quyền...'"
+    confirmText="Đồng ý"
+    cancelText="Hủy bỏ"
     (confirm)="confirm()"
     (cancel)="cancel()"
   ></app-confirm-dialog>`,

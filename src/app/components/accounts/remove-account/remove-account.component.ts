@@ -15,13 +15,20 @@ import { ILoadAccount } from '../../../core/interfaces/account.interface';
   selector: 'app-remove-account',
   standalone: true,
   imports: [CommonModule, ConfirmDialogComponent],
-  template: `<app-confirm-dialog
-    *ngIf="showConfirm"
-    [message]="'Bạn có chắc muốn xóa ' + pendingData?.username"
-    [loading]="(loading$ | async) ?? false"
-    (confirm)="confirm()"
-    (cancel)="cancel()"
-  ></app-confirm-dialog>`,
+  template: `
+    <app-confirm-dialog
+      *ngIf="showConfirm"
+      [visible]="showConfirm"
+      [title]="'Xác nhận muốn xóa người dùng'"
+      [message]="'Bạn có chắc muốn xóa ' + pendingData?.username + ' không?'"
+      [loading]="(loading$ | async) ?? false"
+      [loadingText]="'Đang xóa người dùng...'"
+      confirmText="Đồng ý"
+      cancelText="Hủy bỏ"
+      (confirm)="confirm()"
+      (cancel)="cancel()"
+    ></app-confirm-dialog>
+  `,
 })
 export class RemoveAccountComponent {
   showConfirm = true;

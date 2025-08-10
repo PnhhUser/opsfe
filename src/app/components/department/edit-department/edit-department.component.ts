@@ -42,11 +42,16 @@ import { ActionDepartment } from '../../../store/departments/department.actions'
 
     <app-confirm-dialog
       *ngIf="showConfirm"
-      [message]="'Bạn có chắc muốn sửa không?'"
+      [visible]="showConfirm"
+      [title]="'Xác nhận sửa phòng ban'"
+      [message]="'Bạn có chắc muốn sửa ' + initialValue.name + ' không?'"
       [loading]="(loading$ | async) ?? false"
-      (confirm)="confirmAdd()"
-      (cancel)="cancelAdd()"
-    ></app-confirm-dialog> `,
+      [loadingText]="'Đang sửa...'"
+      confirmText="Đồng ý"
+      cancelText="Hủy bỏ"
+      (confirm)="confirm()"
+      (cancel)="cancel()"
+    ></app-confirm-dialog>`,
 })
 export class EditDepartmentComponent {
   parentLabel: string = 'Back';
@@ -132,7 +137,7 @@ export class EditDepartmentComponent {
     }
   }
 
-  confirmAdd() {
+  confirm() {
     if (!this.pendingData) return;
 
     this.store.dispatch(
@@ -157,7 +162,7 @@ export class EditDepartmentComponent {
       });
   }
 
-  cancelAdd() {
+  cancel() {
     this.showConfirm = false;
     this.pendingData = null;
   }

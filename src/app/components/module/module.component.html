@@ -1,6 +1,10 @@
 <app-panel *ngIf="isParentRoute()">
   <div *ngFor="let route of routes">
-    <app-button-link [url]="route.url" [name]="route.name"></app-button-link>
+    <app-button-link
+      [url]="route.url"
+      [name]="route.name"
+      [isDisabled]="route.isDisabled"
+    ></app-button-link>
   </div>
 </app-panel>
 

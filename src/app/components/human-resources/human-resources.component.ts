@@ -25,6 +25,7 @@ interface AppRoute {
   name: string;
   url: string;
   isDisabled: boolean;
+  code?: string;
 }
 
 @Component({
@@ -41,21 +42,25 @@ export class HumanResourcesComponent {
       name: 'Accounts',
       url: 'accounts',
       isDisabled: false,
+      code: 'view.accounts',
     },
     {
       name: 'Employees',
       url: 'employees',
       isDisabled: false,
+      code: 'view.employees',
     },
     {
       name: 'Positions',
       url: 'positions',
       isDisabled: false,
+      code: 'view.positions',
     },
     {
       name: 'Departments',
       url: 'departments',
       isDisabled: false,
+      code: 'view.departments',
     },
   ];
 
@@ -93,7 +98,7 @@ export class HumanResourcesComponent {
           );
           return { roleId: currentUser?.roleId, permissions };
         }),
-        distinctUntilChanged((prev, curr) => prev.roleId === curr.roleId), // ✅ Chỉ gọi khi roleId đổi
+        distinctUntilChanged((prev, curr) => prev.roleId === curr.roleId),
         switchMap(({ roleId, permissions }) => {
           this.permissions = permissions.map((p) => p.key);
 
@@ -101,14 +106,12 @@ export class HumanResourcesComponent {
             map((res) => res.data),
             map((rolePermissions: IPermission[]) => {
               const validPermissions = rolePermissions.filter((item) =>
-                this.routes.some((r) => r.name === item.name)
+                this.routes.some((r) => r.code === item.key)
               );
 
               this.routes = this.routes.map((route) => ({
                 ...route,
-                isDisabled: !validPermissions.some(
-                  (p) => p.name === route.name
-                ),
+                isDisabled: !validPermissions.some((p) => p.key === route.code),
               }));
             })
           );

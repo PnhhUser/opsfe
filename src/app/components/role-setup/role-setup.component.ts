@@ -187,7 +187,6 @@ export class RoleSetupComponent implements OnInit, OnDestroy {
           // Cập nhật permissionIds cho role hiện tại
           saves[item.itemId] = {
             permissionIds,
-            // grantIds: [], // bạn có thể cập nhật grantIds nếu cần
           };
 
           this.saveSaves(saves);
@@ -269,7 +268,6 @@ export class RoleSetupComponent implements OnInit, OnDestroy {
     if (item && item.roleId) {
       saves[item.roleId] = {
         permissionIds: [...this.granted.map((g) => g.itemId)],
-        // grantIds: [],
       };
     }
 
@@ -305,6 +303,8 @@ export class RoleSetupComponent implements OnInit, OnDestroy {
     const itemsToRemove = items.filter((item) => item.selected);
     const roleId = items[0]?.roleId;
 
+    if (!roleId) return;
+
     // Cập nhật granted - loại bỏ các item đã chọn
     this.granted = this.granted.filter(
       (grantedItem) =>
@@ -314,24 +314,25 @@ export class RoleSetupComponent implements OnInit, OnDestroy {
     );
 
     // Cập nhật trạng thái selected trong permissions
-    this.permissions = this.permissions.map((item) => {
-      if (itemsToRemove.some((toRemove) => toRemove.itemId === item.itemId)) {
-        return { ...item, selected: false };
-      }
-      return item;
-    });
+    this.permissions = this.permissions.map((item) =>
+      itemsToRemove.some((toRemove) => toRemove.itemId === item.itemId)
+        ? { ...item, selected: false }
+        : item
+    );
 
-    this.granted.forEach((item) => {
-      if (item.roleId) {
-        const saves: SavesRecord = this.loadSaves();
+    // Cập nhật local saves
+    const saves: SavesRecord = this.loadSaves();
+    const remainingPermissions = this.granted
+      .filter((g) => g.roleId === roleId)
+      .map((g) => g.itemId);
 
-        saves[item.roleId] = {
-          permissionIds: [...this.granted.map((g) => g.itemId)],
-        };
+    if (remainingPermissions.length > 0) {
+      saves[roleId] = { permissionIds: remainingPermissions };
+    } else {
+      saves[roleId].permissionIds = [];
+    }
 
-        this.saveSaves(saves);
-      }
-    });
+    this.saveSaves(saves);
   }
 
   btnRemoveAll(items: permissionsColumn[]) {

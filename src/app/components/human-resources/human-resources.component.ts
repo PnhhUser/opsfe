@@ -88,6 +88,7 @@ export class HumanResourcesComponent {
       this.store.select(selectPermission),
     ])
       .pipe(
+        // Chỉ chạy khi có account và permission
         filter(
           ([_, accounts, permissions]) =>
             accounts.length > 0 && permissions.length > 0
@@ -96,8 +97,10 @@ export class HumanResourcesComponent {
           const currentUser = accounts.find(
             (account) => account.accountId === user?.id
           );
-          return { roleId: currentUser?.roleId, permissions };
+          return { roleId: currentUser?.roleId ?? null, permissions };
         }),
+        // Chặn roleId null hoặc undefined
+        filter(({ roleId }) => roleId !== null && roleId !== undefined),
         distinctUntilChanged((prev, curr) => prev.roleId === curr.roleId),
         switchMap(({ roleId, permissions }) => {
           this.permissions = permissions.map((p) => p.key);

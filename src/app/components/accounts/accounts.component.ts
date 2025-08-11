@@ -161,7 +161,7 @@ export class AccountComponent {
       .pipe(
         tap((error) => {
           if (error) {
-            this.toastService.error(`${error.message}`, 'Account Error');
+            this.toastService.error(`${error.message}`, 'System');
             this.store.dispatch(AccountActions.resetAccountError());
           }
         }),

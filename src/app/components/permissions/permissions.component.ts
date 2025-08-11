@@ -44,7 +44,7 @@ export class PermissionsComponent {
       sortable: true,
       filter: true,
       minWidth: 100,
-      maxWidth: 220,
+      maxWidth: 500,
     },
     {
       field: 'key',
@@ -52,15 +52,17 @@ export class PermissionsComponent {
       sortable: true,
       filter: true,
       minWidth: 100,
-      maxWidth: 180,
+      maxWidth: 200,
     },
-    { field: 'description', minWidth: 700 },
+    { field: 'description', minWidth: 500 },
     {
       field: 'createdAt',
       headerName: 'Date Added',
       sortable: true,
       cellRenderer: ({ value }: ICellRendererParams) =>
         Utils.toLocaleDatetimeString(value),
+      minWidth: 100,
+      maxWidth: 160,
     },
     {
       field: 'updatedAt',
@@ -68,6 +70,8 @@ export class PermissionsComponent {
       sortable: true,
       cellRenderer: ({ value }: ICellRendererParams) =>
         Utils.toLocaleDatetimeString(value),
+      minWidth: 100,
+      maxWidth: 160,
     },
   ];
 

@@ -47,7 +47,7 @@ export class RolesComponent {
       sortable: true,
       filter: true,
       minWidth: 100,
-      maxWidth: 220,
+      maxWidth: 500,
     },
     {
       field: 'key',
@@ -55,9 +55,9 @@ export class RolesComponent {
       sortable: true,
       filter: true,
       minWidth: 100,
-      maxWidth: 180,
+      maxWidth: 100,
     },
-    { field: 'description', minWidth: 700 },
+    { field: 'description', minWidth: 500 },
     {
       field: 'createdAt',
       headerName: 'Date Added',
@@ -65,6 +65,8 @@ export class RolesComponent {
       cellRenderer: ({ value }: ICellRendererParams) => {
         return Utils.toLocaleDatetimeString(value);
       },
+      minWidth: 100,
+      maxWidth: 160,
     },
     {
       field: 'updatedAt',
@@ -72,6 +74,8 @@ export class RolesComponent {
       sortable: true,
       cellRenderer: ({ value }: ICellRendererParams) =>
         Utils.toLocaleDatetimeString(value),
+      minWidth: 100,
+      maxWidth: 160,
     },
   ];
 

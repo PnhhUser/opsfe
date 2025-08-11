@@ -69,25 +69,7 @@ export class AccountEffect {
       exhaustMap(({ account }) =>
         this.accountService.updateAccount(account).pipe(
           map((response) => {
-            const {
-              accountId,
-              username,
-              lastseen,
-              createdAt,
-              updatedAt,
-              isActive: isAction,
-              roleId: role,
-            } = response.data;
-
-            const updated: ILoadAccount = {
-              accountId,
-              username,
-              lastseen,
-              isActive: isAction,
-              roleId: role,
-              createdAt,
-              updatedAt,
-            };
+            const updated: ILoadAccount = response.data;
             return AccountAction.editAccountSuccess({ account: updated });
           }),
           catchError((error) =>

@@ -5,7 +5,15 @@ import { ButtonLinkComponent } from '../../shared/components/button-link/button-
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { selectUser } from '../../store/auth/auth.selectors';
-import { combineLatest, Subject, takeUntil, filter, map } from 'rxjs';
+import {
+  combineLatest,
+  Subject,
+  takeUntil,
+  filter,
+  map,
+  distinctUntilChanged,
+  switchMap,
+} from 'rxjs';
 import { selectAccounts } from '../../store/accounts/account.selectors';
 import { loadAccount } from '../../store/accounts/account.actions';
 import { ActionPermission } from '../../store/permission/permission.actions';
@@ -74,35 +82,35 @@ export class ModuleComponent {
           ([_, accounts, permissions]) =>
             accounts.length > 0 && permissions.length > 0
         ),
+        map(([user, accounts, permissions]) => {
+          const currentUser = accounts.find(
+            (account) => account.accountId === user?.id
+          );
+          return { roleId: currentUser?.roleId, permissions };
+        }),
+        distinctUntilChanged((prev, curr) => prev.roleId === curr.roleId), // ✅ Chỉ gọi khi roleId đổi
+        switchMap(({ roleId, permissions }) => {
+          this.permissions = permissions.map((p) => p.key);
+
+          return this.setupRoleService.getPermissionsByRoleId(roleId!).pipe(
+            map((res) => res.data),
+            map((rolePermissions: IPermission[]) => {
+              const validPermissions = rolePermissions.filter((item) =>
+                this.routes.some((r) => r.name === item.name)
+              );
+
+              this.routes = this.routes.map((route) => ({
+                ...route,
+                isDisabled: !validPermissions.some(
+                  (p) => p.name === route.name
+                ),
+              }));
+            })
+          );
+        }),
         takeUntil(this.destroy$)
       )
-      .subscribe(([user, accounts, permissions]) => {
-        const currentUser = accounts.filter(
-          (account) => account.accountId === user?.id
-        );
-
-        const roleId = currentUser[0]?.roleId;
-
-        this.permissions = [...permissions.map((p) => p.key)];
-
-        this.setupRoleService
-          .getPermissionsByRoleId(roleId)
-          .subscribe((res) => {
-            let permissions: IPermission[] = res.data;
-
-            permissions = permissions.filter((item) =>
-              this.routes.some((r) => r.name === item.name)
-            );
-
-            this.routes = this.routes.map((route) => {
-              const permission = permissions.find((p) => p.name === route.name);
-              return {
-                ...route,
-                isDisabled: !permission,
-              };
-            });
-          });
-      });
+      .subscribe();
   }
 
   isParentRoute(): boolean {
@@ -112,7 +120,6 @@ export class ModuleComponent {
 
   ngDestroy() {
     this.destroy$.next();
-
     this.destroy$.complete();
   }
 }

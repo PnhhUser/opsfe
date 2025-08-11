@@ -53,13 +53,15 @@ export const accountReducer = createReducer(
     loading: true,
     error: null,
   })),
-  on(AccountAction.editAccountSuccess, (state, { account }) => ({
-    ...state,
-    accounts: state.accounts.map((a) =>
-      a.accountId === account.accountId ? account : a
-    ),
-    loading: false,
-  })),
+  on(AccountAction.editAccountSuccess, (state, { account }) => {
+    return {
+      ...state,
+      accounts: state.accounts.map((a) =>
+        a.accountId === account.accountId ? account : a
+      ),
+      loading: false,
+    };
+  }),
   on(AccountAction.editAccountFailure, (state, { error }) => ({
     ...state,
     loading: false,

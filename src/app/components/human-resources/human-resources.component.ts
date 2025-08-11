@@ -7,7 +7,15 @@ import { Store } from '@ngrx/store';
 import { SetupRoleService } from '../../core/services/setup-role.service';
 import { loadAccount } from '../../store/accounts/account.actions';
 import { ActionPermission } from '../../store/permission/permission.actions';
-import { combineLatest, filter, Subject, takeUntil } from 'rxjs';
+import {
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  map,
+  Subject,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
 import { selectUser } from '../../store/auth/auth.selectors';
 import { selectAccounts } from '../../store/accounts/account.selectors';
 import { selectPermission } from '../../store/permission/permission.selector';
@@ -79,35 +87,35 @@ export class HumanResourcesComponent {
           ([_, accounts, permissions]) =>
             accounts.length > 0 && permissions.length > 0
         ),
+        map(([user, accounts, permissions]) => {
+          const currentUser = accounts.find(
+            (account) => account.accountId === user?.id
+          );
+          return { roleId: currentUser?.roleId, permissions };
+        }),
+        distinctUntilChanged((prev, curr) => prev.roleId === curr.roleId), // ✅ Chỉ gọi khi roleId đổi
+        switchMap(({ roleId, permissions }) => {
+          this.permissions = permissions.map((p) => p.key);
+
+          return this.setupRoleService.getPermissionsByRoleId(roleId!).pipe(
+            map((res) => res.data),
+            map((rolePermissions: IPermission[]) => {
+              const validPermissions = rolePermissions.filter((item) =>
+                this.routes.some((r) => r.name === item.name)
+              );
+
+              this.routes = this.routes.map((route) => ({
+                ...route,
+                isDisabled: !validPermissions.some(
+                  (p) => p.name === route.name
+                ),
+              }));
+            })
+          );
+        }),
         takeUntil(this.destroy$)
       )
-      .subscribe(([user, accounts, permissions]) => {
-        const currentUser = accounts.filter(
-          (account) => account.accountId === user?.id
-        );
-
-        const roleId = currentUser[0]?.roleId;
-
-        this.permissions = [...permissions.map((p) => p.key)];
-
-        this.setupRoleService
-          .getPermissionsByRoleId(roleId)
-          .subscribe((res) => {
-            let permissions: IPermission[] = res.data;
-
-            permissions = permissions.filter((item) =>
-              this.routes.some((r) => r.name === item.name)
-            );
-
-            this.routes = this.routes.map((route) => {
-              const permission = permissions.find((p) => p.name === route.name);
-              return {
-                ...route,
-                isDisabled: !permission,
-              };
-            });
-          });
-      });
+      .subscribe();
   }
 
   isParentRoute(): boolean {

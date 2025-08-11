@@ -22,7 +22,7 @@ import {
 import { TableComponent } from '../../shared/components/table/table.component';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { Utils } from '../../core/utils/index.utils';
-import { Subject, takeUntil, tap } from 'rxjs';
+import { filter, Subject, take, takeUntil, tap } from 'rxjs';
 import { ToastService } from '../../core/services/toast.service';
 import { IRole } from '../../core/interfaces/role.interface';
 
@@ -58,15 +58,15 @@ export class AccountComponent {
       cellRenderer: (params: ICellRendererParams) => {
         const role: IRole = params.value;
 
-        const isAdmin = role.key === 'admin';
+        const isAdmin = role?.key === 'admin';
 
-        const label = isAdmin ? 'Admin' : role.key;
+        const label = isAdmin ? 'Admin' : role?.key;
         const badgeClass = !isAdmin
           ? 'bg-blue-50 text-blue-700 ring-blue-700/10'
           : 'bg-red-50 text-red-700 ring-red-700/10';
 
         return `
-      <span class="inline-flex justify-center rounded-md  px-2 py-1 text-xs font-medium  ring-1 ${badgeClass} ring-inset min-w-[70px]">
+      <span class="inline-flex justify-center rounded-md  px-2 py-1 text-xs font-medium  ring-1 ${badgeClass} ring-inset min-w-[70px] capitalize">
         ${label}
       </span>
     `;
@@ -123,15 +123,19 @@ export class AccountComponent {
       field: 'createdAt',
       headerName: 'Date Added',
       sortable: true,
+      cellRenderer: ({ value }: ICellRendererParams) =>
+        Utils.toLocaleDatetimeString(value),
       minWidth: 100,
-      maxWidth: 120,
+      maxWidth: 180,
     },
     {
       field: 'updatedAt',
       headerName: 'Date Editd',
       sortable: true,
+      cellRenderer: ({ value }: ICellRendererParams) =>
+        Utils.toLocaleDatetimeString(value),
       minWidth: 100,
-      maxWidth: 120,
+      maxWidth: 180,
     },
   ];
 
@@ -174,18 +178,24 @@ export class AccountComponent {
   // Gọi khi component được khởi tạo
   ngOnInit() {
     this.store.dispatch(AccountActions.loadAccount());
-    this.accounts$.subscribe((accounts: ILoadAccount[]) => {
-      this.accounts = accounts.map((account: ILoadAccount) => ({
-        accountId: account.accountId,
-        roleId: account.roleId,
-        role: account.role,
-        username: account.username,
-        isActive: account.isActive,
-        createdAt: Utils.toLocaleDateString(account.createdAt),
-        updatedAt: Utils.toLocaleDateString(account.updatedAt),
-        lastseen: account.lastseen,
-      }));
-    });
+
+    this.accounts$
+      .pipe(
+        tap((accounts: ILoadAccount[]) => {
+          this.accounts = accounts.map((account: ILoadAccount) => ({
+            accountId: account.accountId,
+            roleId: account.roleId,
+            role: account.role,
+            username: account.username,
+            isActive: account.isActive,
+            createdAt: account.createdAt,
+            updatedAt: account.updatedAt,
+            lastseen: account.lastseen,
+          }));
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
   }
 
   // Kiểm tra có đang ở route cha hay không

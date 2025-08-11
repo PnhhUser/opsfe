@@ -24,6 +24,7 @@ import { LoadingComponent } from '../../shared/components/loading/loading.compon
 import { Utils } from '../../core/utils/index.utils';
 import { Subject, takeUntil, tap } from 'rxjs';
 import { ToastService } from '../../core/services/toast.service';
+import { IRole } from '../../core/interfaces/role.interface';
 
 @Component({
   selector: 'app-account',
@@ -55,11 +56,11 @@ export class AccountComponent {
       headerName: 'Role',
       sortable: true,
       cellRenderer: (params: ICellRendererParams) => {
-        const role = params.value;
+        const role: IRole = params.value;
 
-        const isAdmin = role?.['key'] === 'admin';
+        const isAdmin = role.key === 'admin';
 
-        const label = isAdmin ? 'Admin' : role?.['key'];
+        const label = isAdmin ? 'Admin' : role.key;
         const badgeClass = !isAdmin
           ? 'bg-blue-50 text-blue-700 ring-blue-700/10'
           : 'bg-red-50 text-red-700 ring-red-700/10';

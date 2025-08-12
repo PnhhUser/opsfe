@@ -20,6 +20,7 @@ import { selectUser } from '../../store/auth/auth.selectors';
 import { selectAccounts } from '../../store/accounts/account.selectors';
 import { selectPermission } from '../../store/permission/permission.selector';
 import { IPermission } from '../../core/interfaces/permission.interface';
+import { PERMISSIONS } from '../../core/const/premissions.const';
 
 interface AppRoute {
   name: string;
@@ -42,25 +43,25 @@ export class HumanResourcesComponent {
       name: 'Accounts',
       url: 'accounts',
       isDisabled: false,
-      code: 'view.accounts',
+      code: PERMISSIONS.accounts,
     },
     {
       name: 'Employees',
       url: 'employees',
       isDisabled: false,
-      code: 'view.employees',
+      code: PERMISSIONS.employees,
     },
     {
       name: 'Positions',
       url: 'positions',
       isDisabled: false,
-      code: 'view.positions',
+      code: PERMISSIONS.positions,
     },
     {
       name: 'Departments',
       url: 'departments',
       isDisabled: false,
-      code: 'view.departments',
+      code: PERMISSIONS.departments,
     },
   ];
 

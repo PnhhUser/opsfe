@@ -38,6 +38,6 @@ export class ButtonLinkComponent {
   }
 
   infoToast() {
-    this.toastService.info(`Bạn không có quyền hạn để vào ${this.name}`);
+    this.toastService.info(`Bạn không có quyền truy cập vào ${this.name}`);
   }
 }

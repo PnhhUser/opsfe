@@ -6,13 +6,14 @@ import { dashboardRoute } from './components/dashboard/dashboard.route';
 import { settingRoute } from './components/setting/setting.route';
 import { loginRoute } from './components/login/login.route';
 import { moduleRoute } from './components/module/module.route';
+import { PermissionGuard } from './core/guards/permission.guard';
 
 export const routes: Routes = [
   loginRoute,
   {
     path: '',
     component: LayoutComponent,
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, PermissionGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       dashboardRoute,
@@ -20,6 +21,7 @@ export const routes: Routes = [
       moduleRoute,
       settingRoute,
     ],
+    runGuardsAndResolvers: 'always',
   },
   {
     path: '**',

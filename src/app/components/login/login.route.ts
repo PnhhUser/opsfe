@@ -4,4 +4,5 @@ import { LoginComponent } from './login.component';
 export const loginRoute: Route = {
   path: 'login',
   component: LoginComponent,
+  data: { breadcrumb: 'Login', permission: 'view.login' },
 };

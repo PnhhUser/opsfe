@@ -20,6 +20,7 @@ import { ActionPermission } from '../../store/permission/permission.actions';
 import { selectPermission } from '../../store/permission/permission.selector';
 import { SetupRoleService } from '../../core/services/setup-role.service';
 import { IPermission } from '../../core/interfaces/permission.interface';
+import { PERMISSIONS } from '../../core/const/premissions.const';
 
 interface AppRoute {
   name: string;
@@ -40,25 +41,25 @@ export class ModuleComponent {
       name: 'HR Management',
       url: 'human-resources',
       isDisabled: false,
-      code: 'view.hr_management',
+      code: PERMISSIONS.hr_management,
     },
     {
       name: 'Access Control',
       url: 'access-control',
       isDisabled: false,
-      code: 'view.access_control',
+      code: PERMISSIONS.access_control,
     },
     {
       name: 'Customers Management',
       url: 'customers-management',
       isDisabled: false,
-      code: 'view.customers_management',
+      code: PERMISSIONS.customers_management,
     },
     {
       name: 'Storagies',
       url: 'storagies',
       isDisabled: false,
-      code: 'view.storagies',
+      code: PERMISSIONS.storagies,
     },
   ];
 

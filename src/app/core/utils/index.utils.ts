@@ -53,6 +53,10 @@ function formatVNDStyle(amount: number) {
   return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 }
 
+function convertCodeToPath(code: string): string {
+  return code.replace(/^view\./, '').replace(/_/g, '-'); // view.hr_management -> hr-management
+}
+
 export const Utils = {
   getFullRoutePath,
   withMinDelay,
@@ -60,4 +64,5 @@ export const Utils = {
   toLocaleDatetimeString,
   formatVND,
   formatVNDStyle,
+  convertCodeToPath,
 };

@@ -21,28 +21,28 @@ import {
 import { SetupRoleService } from '../../core/services/setup-role.service';
 import { ConfirmDialogComponent } from '../../shared/components/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastService } from '../../core/services/toast.service';
-
-interface rolesColumn {
-  itemId: number;
-  key: string;
-  selected: boolean;
-}
-
-interface permissionsColumn extends rolesColumn {
-  roleId: number;
-}
-
-type SavesRecord = Record<
-  number, // roleId
-  {
-    permissionIds: number[];
-  }
->;
+import { RoleColumnComponent } from './role-column/role-column.component';
+import { PermissionColumnComponent } from './permission-column/permission-column.component';
+import { TransferButtonsComponent } from './transfer-button/transfer-buttons.component';
+import { GrantedColumnComponent } from './granted-column/granted-column.component';
+import {
+  rolesColumn,
+  permissionsColumn,
+  SavesRecord,
+} from './role-setup.interface';
 
 @Component({
   selector: 'app-role-setup',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ConfirmDialogComponent],
+  imports: [
+    CommonModule,
+    LucideAngularModule,
+    ConfirmDialogComponent,
+    RoleColumnComponent,
+    PermissionColumnComponent,
+    TransferButtonsComponent,
+    GrantedColumnComponent,
+  ],
   templateUrl: './role-setup.component.html',
   providers: [
     {
@@ -70,7 +70,7 @@ export class RoleSetupComponent implements OnInit, OnDestroy {
 
   hasNextColumn = false;
 
-  originalRoleSetup: any; // Dữ liệu ban đầu để so sánh
+  private originalRoleSetup: any; // Dữ liệu ban đầu để so sánh
   currentRoleSetup: any; // Dữ liệu hiện tại từ form hoặc localStorage
   showConfirm: boolean = false;
   loading: boolean = false;
@@ -82,6 +82,10 @@ export class RoleSetupComponent implements OnInit, OnDestroy {
     private setupRoleService: SetupRoleService,
     private toastService: ToastService
   ) {
+    // load local ban đầu
+    this.originalRoleSetup = this.loadSaves();
+
+    // route
     const breadcrumb = this.activatedRoute.snapshot.parent?.data['breadcrumb'];
     this.parentLabel = breadcrumb ? `Back to ${breadcrumb}` : 'Back';
 
@@ -99,9 +103,6 @@ export class RoleSetupComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe();
-
-    // load local ban đầu
-    this.originalRoleSetup = this.loadSaves();
   }
 
   ngOnInit() {
@@ -117,6 +118,31 @@ export class RoleSetupComponent implements OnInit, OnDestroy {
   goBack() {
     this.router.navigate(['../'], { relativeTo: this.activatedRoute });
   }
+  // -------------------
+  onRoleSelected(role: rolesColumn) {
+    this.selectItemRole(role);
+  }
+
+  onRoleDeselected(roleId: number) {
+    this.roles = this.roles.map((r) =>
+      r.itemId === roleId ? { ...r, selected: false } : r
+    );
+    this.permissions = [];
+    this.granted = [];
+    this.hasNextColumn = false;
+
+    let saves: SavesRecord = this.loadSaves();
+    delete saves[roleId];
+    this.saveSaves(saves);
+  }
+  onGrantedItemSelected(item: permissionsColumn) {
+    this.selectItemGranted(item);
+  }
+
+  onSaveRequested() {
+    this.submit();
+  }
+  // ---------------------------
 
   submit() {
     this.currentRoleSetup = this.loadSaves();
@@ -357,7 +383,8 @@ export class RoleSetupComponent implements OnInit, OnDestroy {
   }
 
   private loadSaves(): SavesRecord {
-    return JSON.parse(localStorage.getItem('roleSetup') || '{}');
+    const saves = JSON.parse(localStorage.getItem('roleSetup') || '{}');
+    return saves;
   }
 
   private saveSaves(saves: SavesRecord) {

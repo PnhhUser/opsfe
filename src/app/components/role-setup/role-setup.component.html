@@ -1,3 +1,4 @@
+<!-- role-setup.component.html -->
 <button
   *ngIf="isParentRoute()"
   (click)="goBack()"
@@ -7,137 +8,39 @@
 </button>
 
 <div class="w-full md:w-2/3 mx-auto mt-10 px-2">
-  <div class="flex flex-wrap justify-center md:justify-start gap-4">
-    <!-- Role Column -->
-    <div class="space-y-2 w-full sm:w-56">
-      <p class="text-sm ms-1 font-semibold text-gray-700">Role Column</p>
-      <div
-        class="h-96 bg-white border border-gray-400 rounded shadow overflow-y-auto"
-        *ngIf="roles"
-      >
-        <div
-          *ngFor="let role of roles"
-          class="px-3 py-2 cursor-pointer hover:bg-blue-100 transition text-sm border-b border-gray-300"
-          (click)="selectItemRole(role)"
-          [ngClass]="{ 'bg-blue-200': role.selected }"
-        >
-          <div>
-            {{ role.key }}
-          </div>
-        </div>
-      </div>
-    </div>
+  <div
+    class="flex flex-wrap justify-center items-center md:justify-start gap-4"
+  >
+    <app-role-column
+      [roles]="roles"
+      (roleSelected)="onRoleSelected($event)"
+      (roleDeselected)="onRoleDeselected($event)"
+    >
+    </app-role-column>
 
-    <!-- Permission Column -->
     <ng-container *ngIf="hasNextColumn">
-      <div class="space-y-2 w-full sm:w-56">
-        <p class="text-sm ms-1 font-semibold text-gray-700">
-          Permissions Column
-        </p>
-        <div
-          class="h-96 bg-white border border-gray-400 rounded shadow overflow-y-auto"
-        >
-          <div
-            *ngFor="let permission of permissions"
-            class="px-3 py-2 cursor-pointer bg-white hover:bg-blue-100 transition text-sm border-b border-gray-300"
-          >
-            <div
-              class="flex items-center justify-between"
-              (click)="selectItemPermission(permission)"
-            >
-              <p>{{ permission.key }}</p>
-              <lucide-icon
-                name="check"
-                size="14"
-                color="#10c11c"
-                *ngIf="permission.selected"
-              ></lucide-icon>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Button Select Arrow -->
-      <div
-        class="flex flex-row sm:flex-col items-center justify-center space-x-2 sm:space-x-0 sm:space-y-2"
+      <app-permission-column
+        [permissions]="permissions"
+        (permissionSelected)="selectItemPermission($event)"
       >
-        <div
-          class="text-gray-900 bg-white p-2 w-32 h-10 flex justify-center items-center gap-1 cursor-pointer hover:bg-blue-100 rounded shadow"
-          (click)="btnSelect(permissions)"
-        >
-          <lucide-icon
-            name="chevron-right"
-            color="#4777d7"
-            size="18"
-          ></lucide-icon>
-        </div>
-        <div
-          class="text-gray-900 bg-white p-2 w-32 h-10 flex justify-center items-center gap-1 cursor-pointer hover:bg-blue-100 rounded shadow"
-          (click)="btnSelectAll(granted)"
-        >
-          <lucide-icon
-            name="chevrons-right"
-            color="#4777d7"
-            size="18"
-          ></lucide-icon>
-        </div>
+      </app-permission-column>
 
-        <!-- remove session-->
-        <div
-          class="text-gray-900 bg-white p-2 w-32 h-10 flex justify-center items-center gap-1 cursor-pointer hover:bg-blue-100 rounded shadow"
-          (click)="btnRemove(granted)"
-        >
-          <lucide-icon
-            name="chevron-left"
-            color="#4777d7"
-            size="18"
-          ></lucide-icon>
-        </div>
-        <div
-          class="text-gray-900 bg-white p-2 w-32 h-10 flex justify-center items-center gap-1 cursor-pointer hover:bg-blue-100 rounded shadow"
-          (click)="btnRemoveAll(granted)"
-        >
-          <lucide-icon
-            name="chevrons-left"
-            color="#4777d7"
-            size="18"
-          ></lucide-icon>
-        </div>
-      </div>
+      <app-transfer-buttons
+        [showSelectAll]="true"
+        [showRemoveAll]="true"
+        (select)="btnSelect(permissions)"
+        (selectAll)="btnSelectAll(granted)"
+        (remove)="btnRemove(granted)"
+        (removeAll)="btnRemoveAll(granted)"
+      >
+      </app-transfer-buttons>
 
-      <!-- Granted Column -->
-      <div class="space-y-2 w-full sm:w-56">
-        <div class="flex justify-between items-center">
-          <p class="text-sm ms-1 font-semibold text-gray-700">Granted Column</p>
-          <lucide-icon
-            name="check"
-            size="16"
-            class="cursor-pointer text-[#10c11c]"
-            (click)="submit()"
-          ></lucide-icon>
-        </div>
-        <div
-          class="h-96 bg-white border border-gray-400 rounded shadow overflow-y-auto"
-        >
-          <div
-            *ngFor="let item of granted"
-            class="px-3 py-2 cursor-pointer bg-gray-100 hover:bg-blue-100 transition text-sm border-b border-gray-300"
-          >
-            <div
-              (click)="selectItemGranted(item)"
-              class="flex items-center justify-between"
-            >
-              <p>{{ item.key }}</p>
-              <lucide-icon
-                name="x"
-                size="14"
-                color="#e93535"
-                *ngIf="item.selected"
-              ></lucide-icon>
-            </div>
-          </div>
-        </div>
-      </div>
+      <app-granted-column
+        [granted]="granted"
+        (itemSelected)="selectItemGranted($event)"
+        (submitChanges)="onSaveRequested()"
+      >
+      </app-granted-column>
     </ng-container>
   </div>
 </div>

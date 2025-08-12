@@ -29,4 +29,17 @@ export class SetupRoleService {
       withCredentials: true,
     });
   }
+
+  // check quyền
+  hasPermission(
+    roleId: number,
+    permissionId: number
+  ): Observable<IResponseCustom<{ hasPermission: boolean }>> {
+    return this.http.get<IResponseCustom<{ hasPermission: boolean }>>(
+      `${this.url}/has-permission/${roleId}/${permissionId}`,
+      {
+        withCredentials: true,
+      }
+    );
+  }
 }

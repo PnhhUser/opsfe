@@ -113,7 +113,9 @@ export class AuthEffects {
             delay(500),
             map(() => {
               localStorage.removeItem('hasLogin');
-              this.router.navigate(['/login']);
+              this.router.navigate(['/login']).then(() => {
+                location.reload();
+              });
               return AuthActions.logoutSuccess();
             }),
             catchError((error) => {

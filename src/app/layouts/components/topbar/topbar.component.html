@@ -24,4 +24,7 @@
       </li>
     </ol>
   </nav>
+  <div>
+    <span *ngIf="user$ | async as user">{{ user.name }}</span>
+  </div>
 </div>

@@ -6,7 +6,9 @@ import {
   Router,
   RouterLink,
 } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { filter, map } from 'rxjs';
+import { selectUser } from '../../../store/auth/auth.selectors';
 
 interface Breadcrumb {
   label: string;
@@ -21,8 +23,15 @@ interface Breadcrumb {
 })
 export class TopbarComponent {
   breadcrumbs: Breadcrumb[] = [];
+  user$;
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private store: Store
+  ) {
+    this.user$ = this.store.select(selectUser);
+  }
 
   ngOnInit() {
     this.breadcrumbs = this.buildBreadcrumb(this.route.root);

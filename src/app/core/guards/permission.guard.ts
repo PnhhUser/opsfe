@@ -44,9 +44,6 @@ export class PermissionGuard implements CanActivate {
   private roleIdSubject = new BehaviorSubject<number | null>(null);
   private destroy$ = new Subject<void>();
 
-  private loadRequest$ = new Subject<void>();
-  private currentLoad$: Subscription | null = null;
-
   constructor(
     private setupRoleService: SetupRoleService,
     private permissionService: PermissionService,
@@ -74,8 +71,6 @@ export class PermissionGuard implements CanActivate {
     this.getCurrentUserRoleId()
       .pipe(take(1))
       .subscribe((roleId) => {
-        console.log(roleId);
-
         this.roleIdSubject.next(roleId);
         if (roleId) {
           this.loadRolePermissions(roleId);
@@ -83,44 +78,6 @@ export class PermissionGuard implements CanActivate {
           this.rolePermissionMap$.next(new Map()); // role null thì map rỗng
         }
       });
-
-    // this.loadRequest$
-    //   .pipe(
-    //     switchMap(() =>
-    //       this.getCurrentUserRoleId().pipe(
-    //         take(1),
-    //         distinctUntilChanged(),
-    //         tap((roleId) => {
-    //           this.roleIdSubject.next(roleId);
-    //         }),
-    //         switchMap((roleId) => {
-    //           if (!roleId) return of(new Map<string, number>());
-
-    //           // Hủy request đang chờ nếu có
-    //           if (this.currentLoad$) this.currentLoad$.unsubscribe();
-
-    //           return this.setupRoleService.getPermissionsByRoleId(roleId).pipe(
-    //             map((res) => this.createPermissionMap(res)),
-    //             catchError(() => of(new Map<string, number>()))
-    //           );
-    //         })
-    //       )
-    //     ),
-    //     takeUntil(this.destroy$)
-    //   )
-    //   .subscribe((permissionMap) => {
-    //     this.rolePermissionMap$.next(permissionMap);
-    //   });
-
-    // this.loadRequest$.next(); // Trigger initial load
-  }
-
-  private createPermissionMap(res: IResponseCustom<any>): Map<string, number> {
-    const map = new Map<string, number>();
-    if (res?.data) {
-      res.data.forEach((p: any) => map.set(p.key.trim().toLowerCase(), p.id));
-    }
-    return map;
   }
 
   private loadRolePermissions(roleId: number): void {

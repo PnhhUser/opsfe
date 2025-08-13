@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { AuthService } from '../../core/services/auth.service';
 import * as AuthActions from './auth.actions';
-import { catchError, delay, map, mergeMap, of } from 'rxjs';
+import { catchError, map, mergeMap, of } from 'rxjs';
 
 @Injectable()
 export class AuthEffects {
@@ -23,11 +23,12 @@ export class AuthEffects {
         ofType(AuthActions.login),
         mergeMap(({ username, password }) =>
           this.authService.login({ username, password }).pipe(
-            delay(500),
             map((response) => {
               if (response.success) {
                 localStorage.setItem('hasLogin', JSON.stringify(true));
-                this.router.navigate(['/']);
+                this.router.navigate(['/']).then(() => {
+                  location.reload();
+                });
                 return AuthActions.loginSuccess({
                   user: response.data,
                 });
@@ -110,10 +111,10 @@ export class AuthEffects {
         ofType(AuthActions.logout),
         mergeMap(() =>
           this.authService.logout().pipe(
-            delay(500),
             map(() => {
               localStorage.removeItem('hasLogin');
               this.router.navigate(['/login']).then(() => {
+                localStorage.removeItem('roleSetup');
                 location.reload();
               });
               return AuthActions.logoutSuccess();

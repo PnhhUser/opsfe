@@ -5,8 +5,6 @@ import { Store } from '@ngrx/store';
 import { delay, Subject, takeUntil, tap } from 'rxjs';
 import { selectRoles } from '../../store/role/role.selector';
 import { selectPermission } from '../../store/permission/permission.selector';
-import { ActionRole } from '../../store/role/role.actions';
-import { ActionPermission } from '../../store/permission/permission.actions';
 import {
   LucideAngularModule,
   LUCIDE_ICONS,
@@ -105,11 +103,7 @@ export class RoleSetupComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
-  ngOnInit() {
-    // Load data
-    this.store.dispatch(ActionRole.loadRoles());
-    this.store.dispatch(ActionPermission.loadPermissions());
-  }
+  ngOnInit() {}
 
   isParentRoute(): boolean {
     return !this.activatedRoute.firstChild;

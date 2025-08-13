@@ -121,8 +121,6 @@ export class EditPositionComponent {
       return;
     }
 
-    this.store.dispatch(ActionDepartment.loadDepartments());
-
     // Lấy dữ liệu position
     this.store
       .select(selectPositions)

@@ -10,6 +10,7 @@ export interface ILoginForm {
 export interface IUser {
   id: number;
   name: string;
+  roleId: number;
 }
 
 // auth

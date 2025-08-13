@@ -78,7 +78,6 @@ export class DepartmentComponent {
   }
 
   ngOnInit(): void {
-    this.store.dispatch(ActionDepartment.loadDepartments());
     this.store
       .select(selectDepartments)
       .subscribe((departments: IloadDepartment[]) => {

@@ -75,9 +75,6 @@ export class ModuleComponent {
   ) {}
 
   ngOnInit() {
-    this.store.dispatch(loadAccount());
-    this.store.dispatch(ActionPermission.loadPermissions());
-
     combineLatest([
       this.store.select(selectUser),
       this.store.select(selectAccounts),

@@ -70,13 +70,13 @@ export class AuthEffects {
         ofType(AuthActions.checkAuth),
         mergeMap(() =>
           this.authService.checkAuth().pipe(
-            map((res) =>
-              res.success
+            map((res) => {
+              return res.success
                 ? AuthActions.loginSuccess({ user: res.data })
                 : AuthActions.loginFailure({
                     error: { message: res.message || 'Chưa xác thực.' },
-                  })
-            ),
+                  });
+            }),
             catchError((error) => {
               let message: string;
 

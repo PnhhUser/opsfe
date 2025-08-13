@@ -19,8 +19,7 @@ import {
   selectRolesLoading,
 } from '../../store/role/role.selector';
 import { ActionRole } from '../../store/role/role.actions';
-import { filter, Subject, take, takeUntil, tap } from 'rxjs';
-import { Toast } from 'ngx-toastr';
+import { Subject, takeUntil, tap } from 'rxjs';
 import { ToastService } from '../../core/services/toast.service';
 
 @Component({
@@ -112,9 +111,7 @@ export class RolesComponent {
       .subscribe();
   }
 
-  ngOnInit() {
-    this.store.dispatch(ActionRole.loadRoles());
-  }
+  ngOnInit() {}
 
   isParentRoute(): boolean {
     const currentRoute = this.activatedRoute;

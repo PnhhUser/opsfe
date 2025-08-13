@@ -233,8 +233,6 @@ export class EmployeeComponent {
   }
 
   ngOnInit() {
-    this.store.dispatch(ActionEmployee.loadEmployees());
-
     this.emps$.subscribe((res: ILoadEmployee[]) => {
       this.employees = res.map((emp) => ({
         employeeId: emp.employeeId,

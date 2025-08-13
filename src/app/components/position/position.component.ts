@@ -139,8 +139,6 @@ export class PositionComponent {
   }
 
   ngOnInit() {
-    this.store.dispatch(ActionPosition.loadPositions());
-
     this.positions$.subscribe((positions: ILoadPosition[]) => {
       this.positions = positions.map((position) => {
         return {

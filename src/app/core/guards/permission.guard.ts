@@ -12,27 +12,20 @@ import {
   of,
   ReplaySubject,
   Subject,
-  Subscription,
 } from 'rxjs';
 import {
   catchError,
-  debounceTime,
-  distinctUntilChanged,
   filter,
   map,
   switchMap,
   take,
   takeUntil,
-  tap,
 } from 'rxjs/operators';
 import { SetupRoleService } from '../services/setup-role.service';
 import { PermissionService } from '../services/permission.service';
 import { ToastService } from '../services/toast.service';
 import { Store } from '@ngrx/store';
 import { selectUser } from '../../store/auth/auth.selectors';
-import { loadAccount } from '../../store/accounts/account.actions';
-import { selectAccounts } from '../../store/accounts/account.selectors';
-import { IResponseCustom } from '../interfaces/response.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -51,8 +44,6 @@ export class PermissionGuard implements CanActivate {
     private toastService: ToastService,
     private store: Store
   ) {
-    this.store.dispatch(loadAccount());
-
     // Load global permission map 1 lần và cache lại
     this.permissionService.getPermissions().subscribe({
       next: (res) => {
@@ -168,15 +159,11 @@ export class PermissionGuard implements CanActivate {
   }
 
   private getCurrentUserRoleId(): Observable<number | null> {
-    return combineLatest([
-      this.store.select(selectUser),
-      this.store.select(selectAccounts),
-    ]).pipe(
-      filter(([user, accounts]) => !!user && accounts.length > 0),
-      map(
-        ([user, accounts]) =>
-          accounts.find((acc) => acc.accountId === user?.id)?.roleId ?? null
-      ),
+    return combineLatest([this.store.select(selectUser)]).pipe(
+      filter(([user]) => !!user),
+      map(([user]) => {
+        return user?.roleId || null;
+      }),
       takeUntil(this.destroy$)
     );
   }

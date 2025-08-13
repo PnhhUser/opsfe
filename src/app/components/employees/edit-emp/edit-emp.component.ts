@@ -138,9 +138,6 @@ export class EditEmpComponent {
       return;
     }
 
-    this.store.dispatch(ActionPosition.loadPositions());
-    this.store.dispatch(loadAccount());
-
     // Load positions
     this.store
       .select(selectPositions)

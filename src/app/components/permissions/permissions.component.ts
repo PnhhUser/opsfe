@@ -17,7 +17,6 @@ import {
   selectPermissionLoading,
 } from '../../store/permission/permission.selector';
 import { ILoadPermissions } from '../../core/interfaces/permission.interface';
-import { ActionPermission } from '../../store/permission/permission.actions';
 
 @Component({
   selector: 'app-permisions',
@@ -90,8 +89,6 @@ export class PermissionsComponent {
   }
 
   ngOnInit() {
-    this.store.dispatch(ActionPermission.loadPermissions());
-
     this.store
       .select(selectPermission)
       .subscribe((data: ILoadPermissions[]) => {

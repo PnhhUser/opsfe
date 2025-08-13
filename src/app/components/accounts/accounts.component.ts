@@ -11,7 +11,6 @@ import {
 } from 'ag-grid-community';
 import { CRUDComponent } from '../../shared/components/crud/crud.component';
 import { ILoadAccount } from '../../core/interfaces/account.interface';
-import { RoleEnum } from '../../core/enum/role.enum';
 import { Store } from '@ngrx/store';
 import * as AccountActions from '../../store/accounts/account.actions';
 import {
@@ -22,7 +21,7 @@ import {
 import { TableComponent } from '../../shared/components/table/table.component';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { Utils } from '../../core/utils/index.utils';
-import { filter, Subject, take, takeUntil, tap } from 'rxjs';
+import { Subject, takeUntil, tap } from 'rxjs';
 import { ToastService } from '../../core/services/toast.service';
 import { IRole } from '../../core/interfaces/role.interface';
 
@@ -177,8 +176,6 @@ export class AccountComponent {
 
   // Gọi khi component được khởi tạo
   ngOnInit() {
-    this.store.dispatch(AccountActions.loadAccount());
-
     this.accounts$
       .pipe(
         tap((accounts: ILoadAccount[]) => {

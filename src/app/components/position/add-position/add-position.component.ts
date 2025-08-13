@@ -96,8 +96,6 @@ export class AddPositionComponent {
   }
 
   ngOnInit() {
-    this.store.dispatch(ActionDepartment.loadDepartments());
-
     this.departments$
       .pipe(
         filter((data) => data.length > 0),

@@ -118,9 +118,6 @@ export class AddEmpComponent {
   }
 
   ngOnInit() {
-    // Load positions
-    this.store.dispatch(ActionPosition.loadPositions());
-
     this.store
       .select(selectPositions)
       .pipe(

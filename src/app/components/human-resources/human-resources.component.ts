@@ -5,8 +5,6 @@ import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { ButtonLinkComponent } from '../../shared/components/button-link/button-link.component';
 import { Store } from '@ngrx/store';
 import { SetupRoleService } from '../../core/services/setup-role.service';
-import { loadAccount } from '../../store/accounts/account.actions';
-import { ActionPermission } from '../../store/permission/permission.actions';
 import {
   combineLatest,
   distinctUntilChanged,
@@ -80,9 +78,6 @@ export class HumanResourcesComponent {
   }
 
   ngOnInit() {
-    this.store.dispatch(loadAccount());
-    this.store.dispatch(ActionPermission.loadPermissions());
-
     combineLatest([
       this.store.select(selectUser),
       this.store.select(selectAccounts),

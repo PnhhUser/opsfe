@@ -71,48 +71,48 @@ export class PermissionGuard implements CanActivate {
     });
 
     // Giám sát roleId thay đổi để load permission role tương ứng và cache
-    // this.getCurrentUserRoleId()
-    //   .pipe(take(1))
-    //   .subscribe((roleId) => {
-    //     console.log(roleId);
+    this.getCurrentUserRoleId()
+      .pipe(take(1))
+      .subscribe((roleId) => {
+        console.log(roleId);
 
-    //     this.roleIdSubject.next(roleId);
-    //     if (roleId) {
-    //       this.loadRolePermissions(roleId);
-    //     } else {
-    //       this.rolePermissionMap$.next(new Map()); // role null thì map rỗng
-    //     }
-    //   });
-
-    this.loadRequest$
-      .pipe(
-        switchMap(() =>
-          this.getCurrentUserRoleId().pipe(
-            take(1),
-            distinctUntilChanged(),
-            tap((roleId) => {
-              this.roleIdSubject.next(roleId);
-            }),
-            switchMap((roleId) => {
-              if (!roleId) return of(new Map<string, number>());
-
-              // Hủy request đang chờ nếu có
-              if (this.currentLoad$) this.currentLoad$.unsubscribe();
-
-              return this.setupRoleService.getPermissionsByRoleId(roleId).pipe(
-                map((res) => this.createPermissionMap(res)),
-                catchError(() => of(new Map<string, number>()))
-              );
-            })
-          )
-        ),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((permissionMap) => {
-        this.rolePermissionMap$.next(permissionMap);
+        this.roleIdSubject.next(roleId);
+        if (roleId) {
+          this.loadRolePermissions(roleId);
+        } else {
+          this.rolePermissionMap$.next(new Map()); // role null thì map rỗng
+        }
       });
 
-    this.loadRequest$.next(); // Trigger initial load
+    // this.loadRequest$
+    //   .pipe(
+    //     switchMap(() =>
+    //       this.getCurrentUserRoleId().pipe(
+    //         take(1),
+    //         distinctUntilChanged(),
+    //         tap((roleId) => {
+    //           this.roleIdSubject.next(roleId);
+    //         }),
+    //         switchMap((roleId) => {
+    //           if (!roleId) return of(new Map<string, number>());
+
+    //           // Hủy request đang chờ nếu có
+    //           if (this.currentLoad$) this.currentLoad$.unsubscribe();
+
+    //           return this.setupRoleService.getPermissionsByRoleId(roleId).pipe(
+    //             map((res) => this.createPermissionMap(res)),
+    //             catchError(() => of(new Map<string, number>()))
+    //           );
+    //         })
+    //       )
+    //     ),
+    //     takeUntil(this.destroy$)
+    //   )
+    //   .subscribe((permissionMap) => {
+    //     this.rolePermissionMap$.next(permissionMap);
+    //   });
+
+    // this.loadRequest$.next(); // Trigger initial load
   }
 
   private createPermissionMap(res: IResponseCustom<any>): Map<string, number> {
